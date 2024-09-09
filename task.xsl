@@ -141,53 +141,56 @@
       <!-- Wrap the first paragraph in the cmd element: -->
       <xsl:call-template name="cmd" />
 
-      <!-- Wrap the remaining elements into the info element if substeps
-           are not present: -->
-      <xsl:if test="count(*) > 1 and $substeps = 0">
-        <xsl:element name="info">
-          <xsl:apply-templates select="*[1]/following-sibling::*" />
-        </xsl:element>
-      </xsl:if>
+      <!-- Process the rest of the content: -->
+      <xsl:if test="not(text())">
+        <!-- Wrap the remaining elements into the info element if substeps
+             are not present: -->
+        <xsl:if test="count(*) > 1 and $substeps = 0">
+          <xsl:element name="info">
+            <xsl:apply-templates select="*[1]/following-sibling::*" />
+          </xsl:element>
+        </xsl:if>
 
-      <!-- Wrap the remaining elements up to the first substeps in the info
-           element: -->
-      <xsl:if test="$headinfo != ''">
-        <xsl:element name="info">
-          <xsl:copy-of select="*[position() > 1 and following-sibling::ol[$substeps]]" />
-        </xsl:element>
-      </xsl:if>
+        <!-- Wrap the remaining elements up to the first substeps in the
+             info element: -->
+        <xsl:if test="$headinfo != ''">
+          <xsl:element name="info">
+            <xsl:copy-of select="*[position() > 1 and following-sibling::ol[$substeps]]" />
+          </xsl:element>
+        </xsl:if>
 
-      <!-- Process the substeps: -->
-      <xsl:for-each select="ol">
-        <xsl:variable name="position" select="position()" />
+        <!-- Process the substeps: -->
+        <xsl:for-each select="ol">
+          <xsl:variable name="position" select="position()" />
 
-        <!-- Generate the substeps element: -->
-        <xsl:element name="substeps">
-          <xsl:for-each select="li">
-            <xsl:call-template name="substep" />
-          </xsl:for-each>
-        </xsl:element>
+          <!-- Generate the substeps element: -->
+          <xsl:element name="substeps">
+            <xsl:for-each select="li">
+              <xsl:call-template name="substep" />
+            </xsl:for-each>
+          </xsl:element>
 
-        <xsl:choose>
-          <!-- Wrap elements between substeps elements in the info
-               element: -->
-          <xsl:when test="following-sibling::ol">
-            <xsl:element name="info">
-              <xsl:apply-templates select="following-sibling::*[following-sibling::ol[$substeps - $position]]"/>
-            </xsl:element>
-          </xsl:when>
-          <!-- Wrap elements after the last substeps element in the info
-               element: -->
-          <xsl:otherwise>
-            <xsl:variable name="tailinfo" select="following-sibling::*" />
-            <xsl:if test="$tailinfo != ''">
+          <xsl:choose>
+            <!-- Wrap elements between substeps elements in the info
+                 element: -->
+            <xsl:when test="following-sibling::ol">
               <xsl:element name="info">
-                <xsl:apply-templates select="$tailinfo" />
+                <xsl:apply-templates select="following-sibling::*[following-sibling::ol[$substeps - $position]]"/>
               </xsl:element>
-            </xsl:if>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:for-each>
+            </xsl:when>
+            <!-- Wrap elements after the last substeps element in the info
+                 element: -->
+            <xsl:otherwise>
+              <xsl:variable name="tailinfo" select="following-sibling::*" />
+              <xsl:if test="$tailinfo != ''">
+                <xsl:element name="info">
+                  <xsl:apply-templates select="$tailinfo" />
+                </xsl:element>
+              </xsl:if>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:for-each>
+      </xsl:if>
     </xsl:element>
   </xsl:template>
 
@@ -198,7 +201,7 @@
       <xsl:call-template name="cmd" />
 
       <!-- Wrap the remaining elements into the info element: -->
-      <xsl:if test="count(*) > 1">
+      <xsl:if test="not(text()) and count(*) > 1">
         <xsl:element name="info">
           <xsl:apply-templates select="*[1]/following-sibling::*" />
         </xsl:element>
@@ -208,16 +211,15 @@
 
   <!-- Generate the cmd elements: -->
   <xsl:template name="cmd">
-      <xsl:variable name="cmd" select="*[1]" />
-      <xsl:element name="cmd">
-        <xsl:choose>
-          <xsl:when test="$cmd != ''">
-            <xsl:value-of select="$cmd" />
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="text()" />
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:element>
+    <xsl:element name="cmd">
+      <xsl:choose>
+        <xsl:when test="text() != ''">
+          <xsl:apply-templates select="./text()|./*" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="*[1]/text()|*[1]/*" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:element>
   </xsl:template>
 </xsl:stylesheet>
