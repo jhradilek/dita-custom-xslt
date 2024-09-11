@@ -3,16 +3,10 @@
 <!--
   Copyright (C) 2024 Jaromir Hradilek
 
-  A custom XSLT stylesheet  to convert a generic DITA topic  generated with
-  the  asciidoctor-dita-topic[1]  plug-in  to a specialized DITA reference.
-  The stylesheet expects  that the original AsciiDoc file  has followed the
-  guidelines  for concept modules  as defined  in the Modular Documentation
-  Reference Guide[2].
+  A custom XSLT stylesheet to convert a generic DITA topic to a specialized
+  DITA reference topic.
 
   Usage: xsltproc ––novalid reference.xsl YOUR_TOPIC.dita
-
-  [1] https://github.com/jhradilek/asciidoctor-dita-topic
-  [2] https://redhat-documentation.github.io/modular-docs/
 
   MIT License
 
