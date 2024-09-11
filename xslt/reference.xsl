@@ -60,7 +60,7 @@
           <xsl:element name="section">
             <xsl:apply-templates select="section[1]/preceding-sibling::*" />
           </xsl:element>
-          <xsl:apply-templates select="section[1]/following-sibling::*" />
+          <xsl:apply-templates select="section|section/following-sibling::*" />
         </xsl:when>
         <xsl:otherwise>
           <xsl:element name="section">
