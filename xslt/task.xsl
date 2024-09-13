@@ -44,6 +44,11 @@
   <xsl:output indent="yes" />
   <xsl:strip-space elements="*" />
 
+  <!-- Report an error if the converted file is not a DITA topic: -->
+  <xsl:template match="/*[not(self::topic)]">
+    <xsl:message terminate="yes">ERROR: Not a DITA topic</xsl:message>
+  </xsl:template>
+
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
     <xsl:copy>
