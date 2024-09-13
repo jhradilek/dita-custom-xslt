@@ -92,7 +92,7 @@
 
   <!-- Generate the steps element: -->
   <xsl:template name="steps">
-    <xsl:variable name="matched" select="*[(self::ol or self::ul) and preceding-sibling::p[@outputclass='title'][1][b='Procedure']]" />
+    <xsl:variable name="matched" select="*[(self::ol or self::ul) and preceding-sibling::p[@outputclass='title'][1][b='Procedure']][1]" />
     <xsl:if test="$matched != ''">
       <xsl:element name="steps">
         <xsl:for-each select="$matched/li">
