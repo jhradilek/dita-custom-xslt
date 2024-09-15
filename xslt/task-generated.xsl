@@ -37,7 +37,7 @@
 -->
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <!-- Generate the XML and DOCTYPE declarations: -->
+  <!-- Compose the XML and DOCTYPE declarations: -->
   <xsl:output encoding="utf-8" method="xml" doctype-system="task.dtd" doctype-public="-//OASIS//DTD DITA Task//EN" />
 
   <!-- Format the XML output: -->
@@ -47,6 +47,11 @@
   <!-- Report an error if the converted file is not a DITA topic: -->
   <xsl:template match="/*[not(self::topic)]">
     <xsl:message terminate="yes">ERROR: Not a DITA topic</xsl:message>
+  </xsl:template>
+
+  <!-- Report an error if the converted file contains a section: -->
+  <xsl:template match="//section">
+    <xsl:message terminate="yes">ERROR: Section not allowed in a DITA task</xsl:message>
   </xsl:template>
 
   <!-- Perform identity transformation: -->
@@ -233,4 +238,5 @@
       </xsl:if>
     </xsl:element>
   </xsl:template>
+
 </xsl:stylesheet>
