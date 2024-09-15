@@ -6,10 +6,10 @@
   A custom XSLT stylesheet to convert a generic DITA topic to a specialized
   DITA task topic:
 
-    1. Any contents preceding the first ordered list is considered part of
+    1. Any contents preceding the first ordered list is  considered part of
        the <context> element.
     2. The first ordered list is transformed into <steps>.
-    3. Any contents following the first ordered list is considered part of
+    3. Any contents following the first  ordered list is considered part of
        the <result> element.
 
   Sections are not permitted and will result in an error.
@@ -63,7 +63,7 @@
   <xsl:template match="@*|node()">
     <xsl:copy>
       <xsl:apply-templates select="@*|node()" />
-</xsl:copy>
+    </xsl:copy>
   </xsl:template>
 
   <!-- Transform the root element: -->
@@ -77,15 +77,12 @@
   <xsl:template match="body">
     <xsl:element name="taskbody">
       <xsl:variable name="steps" select="ol[1]" />
-
       <xsl:call-template name="context">
         <xsl:with-param name="steps" select="$steps" />
       </xsl:call-template>
-
       <xsl:call-template name="steps">
         <xsl:with-param name="steps" select="$steps" />
       </xsl:call-template>
-
       <xsl:call-template name="result">
         <xsl:with-param name="steps" select="$steps" />
       </xsl:call-template>
@@ -131,7 +128,7 @@
     <xsl:if test="$steps">
       <xsl:call-template name="compose-element">
         <xsl:with-param name="name" select="'result'" />
-<xsl:with-param name="contents" select="ol[1]/following-sibling::*" />
+        <xsl:with-param name="contents" select="ol[1]/following-sibling::*" />
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
