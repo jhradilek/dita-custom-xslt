@@ -31,7 +31,7 @@
 -->
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <!-- Generate the XML and DOCTYPE declarations: -->
+  <!-- Compose the XML and DOCTYPE declarations: -->
   <xsl:output encoding="utf-8" method="xml" doctype-system="reference.dtd" doctype-public="-//OASIS//DTD DITA Reference//EN" />
 
   <!-- Format the XML output: -->
@@ -50,14 +50,14 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- Generate reference as the root element: -->
+  <!-- Transform the root element: -->
   <xsl:template match="/topic">
     <xsl:element name="reference">
       <xsl:apply-templates select="@*|node()" />
     </xsl:element>
   </xsl:template>
 
-  <!-- Generate the conbody element: -->
+  <!-- Transform the body element: -->
   <xsl:template match="body">
     <xsl:element name="refbody">
       <xsl:choose>
@@ -75,4 +75,5 @@
       </xsl:choose>
     </xsl:element>
   </xsl:template>
+
 </xsl:stylesheet>
