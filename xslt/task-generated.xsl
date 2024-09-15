@@ -204,7 +204,7 @@
       <xsl:otherwise>
         <xsl:call-template name="compose-element">
           <xsl:with-param name="name" select="'info'" />
-          <xsl:with-param name="contents" select="*|text()" />
+          <xsl:with-param name="contents" select="$contents" />
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
