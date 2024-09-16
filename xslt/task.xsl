@@ -194,7 +194,7 @@
     </xsl:choose>
   </xsl:template>
 
-  <!-- Compose alternating info/step elements: -->
+  <!-- Compose alternating info/substeps elements: -->
   <xsl:template name="info-substeps">
     <xsl:param name="contents" />
     <xsl:variable name="substeps-count" select="count($contents[self::ol])" />
