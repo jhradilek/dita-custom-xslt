@@ -138,7 +138,17 @@
         <xsl:message terminate="no">WARNING: No list elementes found in steps</xsl:message>
       </xsl:if>
       <xsl:if test="$list">
-        <xsl:element name="steps">
+        <xsl:variable name="name">
+          <xsl:choose>
+            <xsl:when test="$list[self::ul]">
+              <xsl:text>steps-unordered</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>steps</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <xsl:element name="{$name}">
           <xsl:for-each select="$list/li">
             <xsl:call-template name="step-substep">
               <xsl:with-param name="type" select="'step'" />
@@ -210,7 +220,7 @@
     </xsl:choose>
   </xsl:template>
 
-  <!-- Compose alternating info/step elements: -->
+  <!-- Compose alternating info/substeps elements: -->
   <xsl:template name="info-substeps">
     <xsl:param name="contents" />
     <xsl:variable name="substeps-count" select="count($contents[self::ol])" />
