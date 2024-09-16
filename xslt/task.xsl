@@ -45,6 +45,7 @@
   <!-- Format the XML output: -->
   <xsl:output indent="yes" />
   <xsl:strip-space elements="*" />
+  <xsl:preserve-space elements="codeblock pre screen" />
 
   <!-- Report an error if the converted file is not a DITA topic: -->
   <xsl:template match="/*[not(self::topic)]">
