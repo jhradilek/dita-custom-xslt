@@ -1,0 +1,39 @@
+[project]
+name = "dita-convert"
+authors = [{name = "Jaromir Hradilek", email="jhradilek@gmail.com"}]
+description = "Convert a generic DITA topic to a specialized concept, task, or reference."
+requires-python = ">= 3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Topic :: Documentation",
+]
+dependencies = [
+  "lxml >= 4.9.2",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/jhradilek/dita-custom-xslt"
+Repository = "https://github.com/jhradilek/dita-custom-xslt"
+Issues = "https://github.com/jhradilek/dita-custom-xslt/issues"
+
+[project.scripts]
+dita-convert = "dita.convert.cli:parse_args"
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "dita.convert.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"dita.convert.xslt" = ["*.xsl"]
