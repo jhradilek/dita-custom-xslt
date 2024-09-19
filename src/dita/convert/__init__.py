@@ -34,3 +34,6 @@ __version__     = '1.0.0'
 NAME        = 'dita-convert'
 VERSION     = __version__
 DESCRIPTION = __doc__
+
+# Expose the XSLT transforms:
+from .transform import *
