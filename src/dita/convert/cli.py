@@ -25,9 +25,9 @@ import argparse
 import errno
 import sys
 
-from dita.convert import NAME, VERSION, DESCRIPTION
-from dita.convert import xslt
 from lxml import etree
+from . import NAME, VERSION, DESCRIPTION
+from .transform import to_concept, to_reference, to_task, to_task_generated
 
 # Print a message to standard error output and terminate the script:
 def exit_with_error(error_message, exit_status=errno.EPERM):
@@ -41,10 +41,10 @@ def exit_with_error(error_message, exit_status=errno.EPERM):
 def convert(source_file, target_type):
     # Select the appropriate XSLT transformer:
     transform = {
-        'concept':   xslt.to_concept,
-        'reference': xslt.to_reference,
-        'task':      xslt.to_task,
-        'task-gen':  xslt.to_task_generated,
+        'concept':   to_concept,
+        'reference': to_reference,
+        'task':      to_task,
+        'task-gen':  to_task_generated,
     }[target_type]
 
     try:
@@ -65,8 +65,8 @@ def convert(source_file, target_type):
 def parse_args():
     # Configure the option parser:
     parser = argparse.ArgumentParser(prog=NAME,
-                                     description=DESCRIPTION,
-                                     add_help=False)
+        description=DESCRIPTION,
+        add_help=False)
 
     # Redefine section titles for the main command:
     parser._optionals.title = 'Options'
@@ -75,23 +75,23 @@ def parse_args():
     # Add supported command-line options:
     info = parser.add_mutually_exclusive_group()
     info.add_argument('-h', '--help',
-                      action='help',
-                      help='display this help and exit')
+        action='help',
+        help='display this help and exit')
     info.add_argument('-v', '--version',
-                      action='version',
-                      version=f'{NAME} {VERSION}',
-                      help='display version information and exit')
+        action='version',
+        version=f'{NAME} {VERSION}',
+        help='display version information and exit')
     parser.add_argument('-t', '--type',
-                        choices=('concept', 'reference', 'task', 'task-gen'),
-                        required=True,
-                        help='target DITA content type')
+        choices=('concept', 'reference', 'task', 'task-gen'),
+        required=True,
+        help='target DITA content type')
     parser.add_argument('-o', '--output',
-                        default=sys.stdout,
-                        help='write output to the selected file instead of stdout')
+        default=sys.stdout,
+        help='write output to the selected file instead of stdout')
 
     # Add supported command-line arguments:
     parser.add_argument('file', metavar='FILE',
-                        help='specify the DITA topic file to convert')
+        help='specify the DITA topic file to convert')
 
     # Parse the command-line options:
     args = parser.parse_args()
@@ -99,15 +99,18 @@ def parse_args():
     # Convert the selected file:
     xml = convert(args.file, args.type)
 
-    # Determine where to write the output:
+    # Determine whether to write to standard output:
     if args.output == sys.stdout:
         # Print to standard output:
-        print(str(xml))
-    else:
-        try:
-            # Write to the selected file:
-            with open(args.output, 'w') as f:
-                f.write(str(xml))
-        except Exception as ex:
-            # Terminate the script if an error is encountered:
-            exit_with_error(f'{args.output}: {ex}')
+        sys.stdout.write(str(xml))
+
+        # Terminate the script:
+        sys.exit(0)
+
+    try:
+        # Write to the selected file:
+        with open(args.output, 'w') as f:
+            f.write(str(xml))
+    except Exception as ex:
+        # Terminate the script if an error is encountered:
+        exit_with_error(f'{args.output}: {ex}')

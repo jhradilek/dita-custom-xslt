@@ -21,7 +21,14 @@
 # ARISING FROM,  OUT OF OR IN CONNECTION WITH  THE SOFTWARE  OR  THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-from . import cli
+from lxml import etree
+from .xslt import *
 
-if __name__ == '__main__':
-    cli.parse_args()
+# Define which symbols are to be exported:
+__all__ = ['to_concept', 'to_reference', 'to_task', 'to_task_generated' ]
+
+# Expose the XSLT transformers:
+to_concept        = etree.XSLT(etree.parse(concept))
+to_reference      = etree.XSLT(etree.parse(reference))
+to_task           = etree.XSLT(etree.parse(task))
+to_task_generated = etree.XSLT(etree.parse(task_generated))

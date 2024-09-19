@@ -23,14 +23,14 @@
 
 """Convert a generic DITA topic to a specialized concept, task, or reference."""
 
-# General information about the project:
-NAME        = "dita-convert"
-VERSION     = "1.0.0"
-DESCRIPTION = __doc__
-
 # Module metadata:
-__author__      = "Jaromir Hradilek"
-__copyright__   = "Copyright (C) 2024 Jaromir Hradilek"
-__license__     = "MIT License"
-__description__ = DESCRIPTION
-__version__     = VERSION
+__author__      = 'Jaromir Hradilek'
+__copyright__   = 'Copyright (C) 2024 Jaromir Hradilek'
+__license__     = 'MIT License'
+__description__ = __doc__
+__version__     = '1.0.0'
+
+# Expose general information about the project:
+NAME        = 'dita-convert'
+VERSION     = __version__
+DESCRIPTION = __doc__

@@ -22,16 +22,12 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 from pathlib import Path
-from lxml import etree
+
+# Define which symbols are to be exported:
+__all__ = ['concept', 'reference', 'task', 'task_generated' ]
 
 # XSLT file paths:
-concept_path        = Path(__file__).parent / 'xslt/concept.xsl'
-reference_path      = Path(__file__).parent / 'xslt/reference.xsl'
-task_path           = Path(__file__).parent / 'xslt/task.xsl'
-task_generated_path = Path(__file__).parent / 'xslt/task-generated.xsl'
-
-# XSTL transformers:
-to_concept          = etree.XSLT(etree.parse(concept_path))
-to_reference        = etree.XSLT(etree.parse(reference_path))
-to_task             = etree.XSLT(etree.parse(task_path))
-to_task_generated   = etree.XSLT(etree.parse(task_generated_path))
+concept        = Path(__file__).parent / 'xslt/concept.xsl'
+reference      = Path(__file__).parent / 'xslt/reference.xsl'
+task           = Path(__file__).parent / 'xslt/task.xsl'
+task_generated = Path(__file__).parent / 'xslt/task-generated.xsl'
