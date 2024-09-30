@@ -50,9 +50,9 @@ def convert(source_file, target_type):
     try:
         # Run the transformation:
         xml = transform(etree.parse(source_file))
-    except Exception as ex:
+    except etree.XSLTApplyError as message:
         # Terminate the script if an error is encountered:
-        exit_with_error(f'{source_file}: {ex}')
+        exit_with_error(f'{source_file}: {message}')
 
     # Print any warning messages to standard error output:
     for error in transform.error_log:
