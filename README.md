@@ -35,14 +35,29 @@ Available `TYPE` values are `concept`, `reference`, `task`, and `task-generated`
 To convert a DITA topic to a specialized DITA content type, the **dita_convert** package exports the corresponding `to_concept()`, `to_reference()`, `to_task()`, and `to_task_generated()` functions that return an ElementTree object:
 
 ```python
+import sys
+
 from lxml import etree
 from dita.convert import to_task
 
 # Parse the contents of a sample DITA topic file:
 topic = etree.parse("topic.dita")
 
-# Convert the DITA topic to a DITA task:
-task  = to_task(topic)
+# Report possible errors:
+try:
+    # Convert the DITA topic to a DITA task:
+    task  = to_task(topic)
+except etree.XSLTApplyError as msg:
+    # Print the error message to standard error output:
+    print(msg, file=sys.stderr)
+
+    # Terminate the script:
+    sys.exit(1)
+
+# Report possible warnings:
+for error in to_task.error_log:
+    # Print the warning message to standard error output:
+    print(error.message, file=sys.stderr)
 
 # Print the resulting XML to standard output:
 print(str(task))
