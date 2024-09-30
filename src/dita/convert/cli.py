@@ -91,10 +91,16 @@ def parse_args():
 
     # Add supported command-line arguments:
     parser.add_argument('file', metavar='FILE',
+        default=sys.stdin,
+        nargs='?',
         help='specify the DITA topic file to convert')
 
     # Parse the command-line options:
     args = parser.parse_args()
+
+    # Recognize the instruction to read from standard input:
+    if args.file == '-':
+        args.file = sys.stdin
 
     # Convert the selected file:
     xml = convert(args.file, args.type)
