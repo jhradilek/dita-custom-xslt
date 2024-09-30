@@ -100,7 +100,7 @@ def parse_args():
     xml = convert(args.file, args.type)
 
     # Determine whether to write to standard output:
-    if args.output == sys.stdout:
+    if args.output == sys.stdout or args.output == '-':
         # Print to standard output:
         sys.stdout.write(str(xml))
 
