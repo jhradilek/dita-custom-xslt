@@ -1,6 +1,6 @@
 import unittest
 from pathlib import PurePath
-from dita.convert import xslt
+from src.dita.convert import xslt
 
 class TestDitaConvertXSLT(unittest.TestCase):
     def test_concept_returns_path(self):
