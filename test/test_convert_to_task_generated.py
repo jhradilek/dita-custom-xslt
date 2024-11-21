@@ -35,6 +35,102 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
 
         self.assertEqual(str(cm.exception), 'ERROR: Section not allowed in a DITA task')
 
+    def test_unsupported_titles(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Unsupported title</b></p>
+                <p>Unsupported content</p>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, "WARNING: Unsupported title 'Unsupported title' found, skipping...")
+
+        self.assertFalse(task.xpath('boolean(//p[@outputclass="title"])'))
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported title"])'))
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+
+    def test_nonlist_elements(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Procedure</b></p>
+                <p>Unsupported content</p>
+                <ol>
+                    <li>Task step</li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, "WARNING: Non-list elements found in steps, skipping...")
+
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
+
+    def test_extra_list_elements(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Procedure</b></p>
+                <ol>
+                    <li>Task step</li>
+                </ol>
+                <ol>
+                    <li>Unsupported content</li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, "WARNING: Extra list elements found in steps, skipping...")
+
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
+
+    def test_no_list_elements(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Procedure</b></p>
+                <p>Unsupported content</p>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertIn('WARNING: No list elements found in steps', [m.message for m in err])
+
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+
     def test_task_structure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
