@@ -3,15 +3,15 @@ from src.dita import convert
 
 class TestDitaConvert(unittest.TestCase):
     def test_name_exposed(self):
-        self.assertTrue(isinstance(convert.NAME, str))
+        self.assertIsInstance(convert.NAME, str)
         self.assertNotEqual(convert.NAME, '')
 
     def test_version_exposed(self):
-        self.assertTrue(isinstance(convert.VERSION, str))
+        self.assertIsInstance(convert.VERSION, str)
         self.assertNotEqual(convert.VERSION, '')
 
     def test_description_exposed(self):
-        self.assertTrue(isinstance(convert.DESCRIPTION, str))
+        self.assertIsInstance(convert.DESCRIPTION, str)
         self.assertNotEqual(convert.DESCRIPTION, '')
 
     def test_to_concept_exposed(self):

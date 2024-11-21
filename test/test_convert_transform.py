@@ -11,7 +11,7 @@ class TestDitaConvertTransform(unittest.TestCase):
         </topic>
         '''))
 
-        self.assertTrue(isinstance(transform.to_concept(xml), etree._XSLTResultTree))
+        self.assertIsInstance(transform.to_concept(xml), etree._XSLTResultTree)
 
     def test_to_reference_returns_result(self):
         xml = etree.parse(StringIO('''\
@@ -20,7 +20,7 @@ class TestDitaConvertTransform(unittest.TestCase):
         </topic>
         '''))
 
-        self.assertTrue(isinstance(transform.to_reference(xml), etree._XSLTResultTree))
+        self.assertIsInstance(transform.to_reference(xml), etree._XSLTResultTree)
 
     def test_to_task_returns_result(self):
         xml = etree.parse(StringIO('''\
@@ -29,7 +29,7 @@ class TestDitaConvertTransform(unittest.TestCase):
         </topic>
         '''))
 
-        self.assertTrue(isinstance(transform.to_task(xml), etree._XSLTResultTree))
+        self.assertIsInstance(transform.to_task(xml), etree._XSLTResultTree)
 
     def test_to_task_generated_returns_result(self):
         xml = etree.parse(StringIO('''\
@@ -38,4 +38,4 @@ class TestDitaConvertTransform(unittest.TestCase):
         </topic>
         '''))
 
-        self.assertTrue(isinstance(transform.to_task_generated(xml), etree._XSLTResultTree))
+        self.assertIsInstance(transform.to_task_generated(xml), etree._XSLTResultTree)
