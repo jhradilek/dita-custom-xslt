@@ -136,7 +136,7 @@
         <xsl:message terminate="no">WARNING: Extra list elements found in steps, skipping...</xsl:message>
       </xsl:if>
       <xsl:if test="not($list)">
-        <xsl:message terminate="no">WARNING: No list elementes found in steps</xsl:message>
+        <xsl:message terminate="no">WARNING: No list elements found in steps</xsl:message>
       </xsl:if>
       <xsl:if test="$list">
         <xsl:variable name="name">
