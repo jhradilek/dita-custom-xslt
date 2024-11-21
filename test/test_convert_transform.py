@@ -28,6 +28,10 @@ class TestDitaConvertTransform(unittest.TestCase):
 
         concept = transform.to_concept(xml)
 
+        self.assertEqual(concept.docinfo.xml_version, '1.0')
+        self.assertEqual(concept.docinfo.public_id, '-//OASIS//DTD DITA Concept//EN')
+        self.assertEqual(concept.docinfo.system_url, 'concept.dtd')
+
         self.assertTrue(concept.xpath('boolean(/concept)'))
         self.assertTrue(concept.xpath('boolean(/concept[@id="example-topic"])'))
         self.assertTrue(concept.xpath('boolean(/concept/title[text()="Topic title"])'))
@@ -57,6 +61,10 @@ class TestDitaConvertTransform(unittest.TestCase):
         '''))
 
         reference = transform.to_reference(xml)
+
+        self.assertEqual(reference.docinfo.xml_version, '1.0')
+        self.assertEqual(reference.docinfo.public_id, '-//OASIS//DTD DITA Reference//EN')
+        self.assertEqual(reference.docinfo.system_url, 'reference.dtd')
 
         self.assertTrue(reference.xpath('boolean(/reference)'))
         self.assertTrue(reference.xpath('boolean(/reference[@id="example-topic"])'))
@@ -112,6 +120,10 @@ class TestDitaConvertTransform(unittest.TestCase):
         '''))
 
         task = transform.to_task(xml)
+
+        self.assertEqual(task.docinfo.xml_version, '1.0')
+        self.assertEqual(task.docinfo.public_id, '-//OASIS//DTD DITA Task//EN')
+        self.assertEqual(task.docinfo.system_url, 'task.dtd')
 
         self.assertTrue(task.xpath('boolean(/task)'))
         self.assertTrue(task.xpath('boolean(/task[@id="example-topic"])'))
@@ -187,6 +199,10 @@ class TestDitaConvertTransform(unittest.TestCase):
         '''))
 
         task = transform.to_task_generated(xml)
+
+        self.assertEqual(task.docinfo.xml_version, '1.0')
+        self.assertEqual(task.docinfo.public_id, '-//OASIS//DTD DITA Task//EN')
+        self.assertEqual(task.docinfo.system_url, 'task.dtd')
 
         self.assertTrue(task.xpath('boolean(/task)'))
         self.assertTrue(task.xpath('boolean(/task[@id="example-topic"])'))
