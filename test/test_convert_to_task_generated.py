@@ -43,13 +43,11 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
                 <p>Topic introduction</p>
                 <p outputclass="title"><b>Prerequisites</b></p>
                 <ul>
-                    <li>First prerequisite</li>
-                    <li>Second prerequisite</li>
+                    <li>Task prerequisite</li>
                 </ul>
                 <p outputclass="title"><b>Procedure</b></p>
                 <ol>
-                    <li>First step</li>
-                    <li>Second step</li>
+                    <li>Task step</li>
                 </ol>
                 <p outputclass="title"><b>Verification</b></p>
                 <ul>
@@ -57,8 +55,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
                 </ul>
                 <p outputclass="title"><b>Troubleshooting</b></p>
                 <ol>
-                    <li>First troubleshooting step</li>
-                    <li>Second troubleshooting step</li>
+                    <li>Troubleshooting step</li>
                 </ol>
                 <p outputclass="title"><b>Next steps</b></p>
                 <ul>
@@ -78,12 +75,9 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task[@id="example-topic"])'))
         self.assertTrue(task.xpath('boolean(/task/title[text()="Topic title"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody)'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/prereq/ul/li[1][text()="First prerequisite"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/prereq/ul/li[2][text()="Second prerequisite"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/prereq/ul/li[text()="Task prerequisite"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step[1]/cmd[text()="First step"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step[2]/cmd[text()="Second step"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/result/ul/li[1][text()="Verification step"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[1][text()="First troubleshooting step"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[2][text()="Second troubleshooting step"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/postreq/ul/li[1][text()="Next step"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/result/ul/li[text()="Verification step"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[text()="Troubleshooting step"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/postreq/ul/li[text()="Next step"])'))

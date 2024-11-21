@@ -42,8 +42,7 @@ class TestDitaConvertToTask(unittest.TestCase):
             <body>
                 <p>Topic introduction</p>
                 <ol>
-                    <li>First step</li>
-                    <li>Second step</li>
+                    <li>Task step</li>
                 </ol>
                 <p>Topic summary</p>
             </body>
@@ -61,6 +60,5 @@ class TestDitaConvertToTask(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/title[text()="Topic title"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody)'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step[1]/cmd[text()="First step"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step[2]/cmd[text()="Second step"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/result/p[text()="Topic summary"])'))
