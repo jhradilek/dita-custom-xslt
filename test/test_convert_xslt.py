@@ -26,6 +26,3 @@ class TestDitaConvertXSLT(unittest.TestCase):
 
     def test_task_generated_returns_file(self):
         self.assertTrue(xslt.task_generated.is_file())
-
-if __name__ == "__main__":
-    unittest.main()
