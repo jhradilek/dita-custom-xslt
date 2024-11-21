@@ -38,3 +38,8 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "dita.convert.xslt" = ["*.xsl"]
+
+[tool.pytest.ini_options]
+testpaths = "test"
+verbosity_assertions = 2
+verbosity_test_cases = 2
