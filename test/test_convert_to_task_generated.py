@@ -131,6 +131,18 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
 
+    def test_task_outputclass(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic" outputclass="procedure">
+            <title outputclass="main">Topic title</title>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertFalse(task.xpath('boolean(/task/@outputclass)'))
+        self.assertTrue(task.xpath('boolean(/task/title[@outputclass="main"])'))
+
     def test_task_structure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">

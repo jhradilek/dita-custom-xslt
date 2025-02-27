@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
 <!--
-  Copyright (C) 2024 Jaromir Hradilek
+  Copyright (C) 2024, 2025 Jaromir Hradilek
 
   A custom XSLT stylesheet  to convert a generic DITA topic  generated with
   the  asciidoctor-dita-topic[1] plug-in  to a specialized DITA task topic.
@@ -57,6 +57,9 @@
 
   <!-- Define a list of valid cmd element children: -->
   <xsl:variable name="cmd-children" select="' abbreviated-form apiname b boolean cite cmdname codeph data data-about draft-comment equation-inline filepath fn foreign i image indexterm indextermref keyword line-through markupname mathml menucascade msgnum msgph numcharref option overline parameterentity parmname ph q required-cleanup sort-as state sub sup svg-container synph systemoutput term text textentity tm tt u uicontrol unknown userinput varname wintitle xmlatt xmlelement xmlnsname xmlpi xref '" />
+
+  <!-- Remove the outputclass attribute from the root element: -->
+  <xsl:template match="/topic/@outputclass" />
 
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
