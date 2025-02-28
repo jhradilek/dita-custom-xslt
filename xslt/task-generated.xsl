@@ -292,10 +292,13 @@
       <xsl:element name="related-links">
         <xsl:for-each select="$list/li">
           <xsl:choose>
-            <xsl:when test="not(xref) or xref[2]">
+            <xsl:when test="not(xref)">
               <xsl:message terminate="no">WARNING: Unexpected content found in related-links, skipping...</xsl:message>
             </xsl:when>
             <xsl:otherwise>
+              <xsl:if test="count(*) &gt; 1 or text()">
+              <xsl:message terminate="no">WARNING: Unexpected content found in related-links, skipping...</xsl:message>
+              </xsl:if>
               <xsl:element name="link">
                 <xsl:copy-of select="xref/@*" />
                 <xsl:if test="xref/text()">
