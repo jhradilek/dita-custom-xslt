@@ -47,11 +47,10 @@ def convert(source_file, target_type):
         'task-gen':  to_task_generated,
     }[target_type]
 
+    # Run the transformation:
     try:
-        # Run the transformation:
         xml = transform(etree.parse(source_file))
-    except etree.XSLTApplyError as message:
-        # Terminate the script if an error is encountered:
+    except (etree.XSLTApplyError, etree.XMLSyntaxError) as message:
         exit_with_error(f'{source_file}: {message}')
 
     # Print any warning messages to standard error output:
