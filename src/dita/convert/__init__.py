@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Jaromir Hradilek
+# Copyright (C) 2024, 2025 Jaromir Hradilek
 
 # MIT License
 #
@@ -25,10 +25,10 @@
 
 # Module metadata:
 __author__      = 'Jaromir Hradilek'
-__copyright__   = 'Copyright (C) 2024 Jaromir Hradilek'
+__copyright__   = 'Copyright (C) 2024, 2025 Jaromir Hradilek'
 __license__     = 'MIT License'
 __description__ = __doc__
-__version__     = '1.0.2'
+__version__     = '1.0.3'
 
 # Expose general information about the project:
 NAME        = 'dita-convert'

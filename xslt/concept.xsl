@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
 <!--
-  Copyright (C) 2024 Jaromir Hradilek
+  Copyright (C) 2024, 2025 Jaromir Hradilek
 
   A custom XSLT stylesheet to convert a generic DITA topic to a specialized
   DITA concept topic.
