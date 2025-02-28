@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Jaromir Hradilek
+# Copyright (C) 2024, 2025 Jaromir Hradilek
 
 # MIT License
 #
@@ -103,7 +103,10 @@ def parse_args():
         args.file = sys.stdin
 
     # Convert the selected file:
-    xml = convert(args.file, args.type)
+    try:
+        xml = convert(args.file, args.type)
+    except OSError as message:
+        exit_with_error(message)
 
     # Determine whether to write to standard output:
     if args.output == sys.stdout or args.output == '-':
@@ -113,10 +116,9 @@ def parse_args():
         # Terminate the script:
         sys.exit(0)
 
+    # Write to the selected file:
     try:
-        # Write to the selected file:
         with open(args.output, 'w') as f:
             f.write(str(xml))
     except Exception as ex:
-        # Terminate the script if an error is encountered:
         exit_with_error(f'{args.output}: {ex}')
