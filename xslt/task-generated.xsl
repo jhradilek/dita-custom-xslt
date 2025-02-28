@@ -275,7 +275,7 @@
     </xsl:for-each>
   </xsl:template>
 
-  <!-- Compose the related-links elements: -->
+  <!-- Compose the related-links element: -->
   <xsl:template name="related-links">
     <xsl:param name="contents" />
     <xsl:variable name="list" select="$contents[self::ul][1]" />
