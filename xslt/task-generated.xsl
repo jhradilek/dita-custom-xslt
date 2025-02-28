@@ -117,14 +117,19 @@
         <xsl:with-param name="name" select="'postreq'" />
         <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Next steps' or b='Next step']]" />
       </xsl:call-template>
-      <!-- Issue a warning if the converted file contains an unsupported title:  -->
-      <xsl:for-each select="p[@outputclass='title']/b/text()">
-        <xsl:variable name="titles" select="'|Prerequisites|Procedure|Verification|Troubleshooting|Troubleshooting steps|Next steps|Next step|'" />
-        <xsl:if test="not(contains($titles, concat('|', ., '|')))">
-          <xsl:message terminate="no">WARNING: Unsupported title '<xsl:copy-of select="." />' found, skipping...</xsl:message>
-        </xsl:if>
-      </xsl:for-each>
     </xsl:element>
+    <!-- Compose the related-links element: -->
+    <xsl:call-template name="related-links">
+        <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Additional resources']]" />
+    </xsl:call-template>
+
+    <!-- Issue a warning if the converted file contains an unsupported title:  -->
+    <xsl:for-each select="p[@outputclass='title']/b/text()">
+      <xsl:variable name="titles" select="'|Prerequisites|Procedure|Verification|Troubleshooting|Troubleshooting steps|Next steps|Next step|Additional resources|'" />
+      <xsl:if test="not(contains($titles, concat('|', ., '|')))">
+        <xsl:message terminate="no">WARNING: Unsupported title '<xsl:copy-of select="." />' found, skipping...</xsl:message>
+      </xsl:if>
+    </xsl:for-each>
   </xsl:template>
 
   <!-- Compose the steps element: -->
@@ -268,6 +273,42 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each>
+  </xsl:template>
+
+  <!-- Compose the related-links elements: -->
+  <xsl:template name="related-links">
+    <xsl:param name="contents" />
+    <xsl:variable name="list" select="$contents[self::ul][1]" />
+    <xsl:if test="$contents">
+      <xsl:if test="$contents[not(self::ul)]">
+        <xsl:message terminate="no">WARNING: Non-list elements found in related links, skipping...</xsl:message>
+      </xsl:if>
+      <xsl:if test="$contents[self::ul][2]">
+        <xsl:message terminate="no">WARNING: Extra list elements found in related-links, skipping...</xsl:message>
+      </xsl:if>
+      <xsl:if test="not($list)">
+        <xsl:message terminate="no">WARNING: No list elements found in related links</xsl:message>
+      </xsl:if>
+      <xsl:element name="related-links">
+        <xsl:for-each select="$list/li">
+          <xsl:choose>
+            <xsl:when test="not(xref) or xref[2]">
+              <xsl:message terminate="no">WARNING: Unexpected content found in related-links, skipping...</xsl:message>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:element name="link">
+                <xsl:copy-of select="xref/@*" />
+                <xsl:if test="xref/text()">
+                  <xsl:element name="linktext">
+                    <xsl:apply-templates select="xref/text()" />
+                  </xsl:element>
+                </xsl:if>
+              </xsl:element>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:for-each>
+      </xsl:element>
+    </xsl:if>
   </xsl:template>
 
   <!-- Helper: Compose an element with the given name and contents: -->

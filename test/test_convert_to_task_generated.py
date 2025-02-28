@@ -58,7 +58,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
 
-    def test_nonlist_elements(self):
+    def test_nonlist_elements_in_procedure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
             <title>Topic title</title>
@@ -77,13 +77,13 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         err  = transform.to_task_generated.error_log
 
         self.assertIsNotNone(err.last_error)
-        self.assertEqual(err.last_error.message, "WARNING: Non-list elements found in steps, skipping...")
+        self.assertEqual(err.last_error.message, 'WARNING: Non-list elements found in steps, skipping...')
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
 
-    def test_extra_list_elements(self):
+    def test_extra_list_elements_in_procedure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
             <title>Topic title</title>
@@ -104,13 +104,13 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         err  = transform.to_task_generated.error_log
 
         self.assertIsNotNone(err.last_error)
-        self.assertEqual(err.last_error.message, "WARNING: Extra list elements found in steps, skipping...")
+        self.assertEqual(err.last_error.message, 'WARNING: Extra list elements found in steps, skipping...')
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
 
-    def test_no_list_elements(self):
+    def test_no_list_elements_in_procedure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
             <title>Topic title</title>
@@ -129,6 +129,147 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertIn('WARNING: No list elements found in steps', [m.message for m in err])
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+
+    def test_nonlist_elements_in_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <p>Unsupported content</p>
+                <ul>
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, 'WARNING: Non-list elements found in related links, skipping...')
+
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links/link[@href="http://example.com"])'))
+
+    def test_extra_list_elements_in_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul>
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+                <ul>
+                    <li>Unsupported content</li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, 'WARNING: Extra list elements found in related-links, skipping...')
+
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links/link[@href="http://example.com"])'))
+
+    def test_no_list_elements_in_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <p>Unsupported content</p>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertIn('WARNING: No list elements found in related links', [m.message for m in err])
+
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+
+    def test_text_node_in_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul>
+                    <li>Unsupported content</li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
+
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+
+    def test_other_node_in_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul>
+                    <li><b>Unsupported content</b></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
+
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+
+    def test_multiple_links_in_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul>
+                    <li><xref href="http://example.com" format="html" scope="external" /><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
+
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
 
     def test_task_outputclass(self):
@@ -293,3 +434,60 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/info[2]/p[text()="Additional information"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[2]/substep/cmd[text()="Second substeps"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[3]/p[text()="Step summary"])'))
+
+    def test_link_without_text(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul>
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/related-links/link[@href="http://example.com"])'))
+
+    def test_link_with_text(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul>
+                    <li><xref href="http://example.com" format="html" scope="external">Example link</xref></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/related-links/link[@href="http://example.com"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links/link/linktext[text()="Example link"])'))
+
+    def test_link_attributes(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul>
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/related-links/link[@href="http://example.com"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links/link[@format="html"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links/link[@scope="external"])'))
