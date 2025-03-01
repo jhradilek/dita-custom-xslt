@@ -6,7 +6,7 @@
   A custom XSLT stylesheet  to convert a generic DITA topic  generated with
   the  asciidoctor-dita-topic[1] plug-in  to a  specialized  DITA  concept.
   The stylesheet expects  that the original AsciiDoc file  has followed the
-  guidelines for procedure modules as defined  in the Modular Documentation
+  guidelines for  concept modules  as defined  in the Modular Documentation
   Reference Guide[2].
 
   Usage: xsltproc ––novalid concept.xsl YOUR_TOPIC.dita
