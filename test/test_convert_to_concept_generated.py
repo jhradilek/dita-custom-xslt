@@ -12,7 +12,7 @@ class TestDitaConvertToConcept(unittest.TestCase):
         '''))
 
         with self.assertRaises(etree.XSLTApplyError) as cm:
-            transform.to_concept(xml)
+            transform.to_concept_generated(xml)
 
         self.assertEqual(str(cm.exception), 'ERROR: Not a DITA topic')
 
@@ -179,7 +179,7 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept(xml)
+        concept = transform.to_concept_generated(xml)
 
         self.assertEqual(concept.docinfo.xml_version, '1.0')
         self.assertEqual(concept.docinfo.public_id, '-//OASIS//DTD DITA Concept//EN')
