@@ -3,16 +3,16 @@ from io import StringIO
 from lxml import etree
 from src.dita.convert import transform
 
-class TestDitaConvertToConcept(unittest.TestCase):
+class TestDitaConvertToReference(unittest.TestCase):
     def test_document_is_topic(self):
         xml = etree.parse(StringIO('''\
-        <concept id="example-concept">
-            <title>Concept title</title>
-        </concept>
+        <reference id="example-reference">
+            <title>Reference title</title>
+        </reference>
         '''))
 
         with self.assertRaises(etree.XSLTApplyError) as cm:
-            transform.to_concept_generated(xml)
+            transform.to_reference_generated(xml)
 
         self.assertEqual(str(cm.exception), 'ERROR: Not a DITA topic')
 
@@ -31,15 +31,15 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
-        err  = transform.to_concept_generated.error_log
+        reference = transform.to_reference_generated(xml)
+        err  = transform.to_reference_generated.error_log
 
         self.assertIsNotNone(err.last_error)
         self.assertEqual(err.last_error.message, 'WARNING: Non-list elements found in related links, skipping...')
 
-        self.assertFalse(concept.xpath('boolean(//*[text()="Unsupported content"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@href="http://example.com"])'))
+        self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link[@href="http://example.com"])'))
 
     def test_extra_list_elements_in_related_links(self):
         xml = etree.parse(StringIO('''\
@@ -58,15 +58,15 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
-        err  = transform.to_concept_generated.error_log
+        reference = transform.to_reference_generated(xml)
+        err  = transform.to_reference_generated.error_log
 
         self.assertIsNotNone(err.last_error)
         self.assertEqual(err.last_error.message, 'WARNING: Extra list elements found in related-links, skipping...')
 
-        self.assertFalse(concept.xpath('boolean(//*[text()="Unsupported content"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@href="http://example.com"])'))
+        self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link[@href="http://example.com"])'))
 
     def test_no_list_elements_in_related_links(self):
         xml = etree.parse(StringIO('''\
@@ -80,14 +80,14 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
-        err  = transform.to_concept_generated.error_log
+        reference = transform.to_reference_generated(xml)
+        err  = transform.to_reference_generated.error_log
 
         self.assertIsNotNone(err.last_error)
         self.assertIn('WARNING: No list elements found in related links', [m.message for m in err])
 
-        self.assertFalse(concept.xpath('boolean(//*[text()="Unsupported content"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
 
     def test_text_node_in_related_links(self):
         xml = etree.parse(StringIO('''\
@@ -103,14 +103,14 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
-        err  = transform.to_concept_generated.error_log
+        reference = transform.to_reference_generated(xml)
+        err  = transform.to_reference_generated.error_log
 
         self.assertIsNotNone(err.last_error)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
-        self.assertFalse(concept.xpath('boolean(//*[text()="Unsupported content"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
 
     def test_other_node_in_related_links(self):
         xml = etree.parse(StringIO('''\
@@ -126,14 +126,14 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
-        err  = transform.to_concept_generated.error_log
+        reference = transform.to_reference_generated(xml)
+        err  = transform.to_reference_generated.error_log
 
         self.assertIsNotNone(err.last_error)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
-        self.assertFalse(concept.xpath('boolean(//*[text()="Unsupported content"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
 
     def test_multiple_links_in_related_links(self):
         xml = etree.parse(StringIO('''\
@@ -149,28 +149,28 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
-        err  = transform.to_concept_generated.error_log
+        reference = transform.to_reference_generated(xml)
+        err  = transform.to_reference_generated.error_log
 
         self.assertIsNotNone(err.last_error)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
 
-    def test_concept_outputclass(self):
+    def test_reference_outputclass(self):
         xml = etree.parse(StringIO('''\
-        <topic id="example-topic" outputclass="concept">
+        <topic id="example-topic" outputclass="reference">
             <title outputclass="main">Topic title</title>
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
+        reference = transform.to_reference_generated(xml)
 
-        self.assertFalse(concept.xpath('boolean(/concept/@outputclass)'))
-        self.assertTrue(concept.xpath('boolean(/concept[@id="example-topic"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/title[@outputclass="main"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/@outputclass)'))
+        self.assertTrue(reference.xpath('boolean(/reference[@id="example-topic"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/title[@outputclass="main"])'))
 
-    def test_concept_structure(self):
+    def test_reference_structure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
             <title>Topic title</title>
@@ -180,17 +180,18 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
+        reference = transform.to_reference_generated(xml)
 
-        self.assertEqual(concept.docinfo.xml_version, '1.0')
-        self.assertEqual(concept.docinfo.public_id, '-//OASIS//DTD DITA Concept//EN')
-        self.assertEqual(concept.docinfo.system_url, 'concept.dtd')
+        self.assertEqual(reference.docinfo.xml_version, '1.0')
+        self.assertEqual(reference.docinfo.public_id, '-//OASIS//DTD DITA Reference//EN')
+        self.assertEqual(reference.docinfo.system_url, 'reference.dtd')
 
-        self.assertTrue(concept.xpath('boolean(/concept)'))
-        self.assertTrue(concept.xpath('boolean(/concept[@id="example-topic"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/title[text()="Topic title"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody)'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic body"])'))
+        self.assertTrue(reference.xpath('boolean(/reference)'))
+        self.assertTrue(reference.xpath('boolean(/reference[@id="example-topic"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/title[text()="Topic title"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody)'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section)'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic body"])'))
 
     def test_link_without_text(self):
         xml = etree.parse(StringIO('''\
@@ -206,11 +207,11 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
+        reference = transform.to_reference_generated(xml)
 
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@href="http://example.com"])'))
-        self.assertFalse(concept.xpath('boolean(//p[@outputclass="title"])'))
-        self.assertFalse(concept.xpath('boolean(//xref)'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link[@href="http://example.com"])'))
+        self.assertFalse(reference.xpath('boolean(//p[@outputclass="title"])'))
+        self.assertFalse(reference.xpath('boolean(//xref)'))
 
     def test_link_with_text(self):
         xml = etree.parse(StringIO('''\
@@ -226,12 +227,12 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
+        reference = transform.to_reference_generated(xml)
 
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@href="http://example.com"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link/linktext[text()="Example link"])'))
-        self.assertFalse(concept.xpath('boolean(//p[@outputclass="title"])'))
-        self.assertFalse(concept.xpath('boolean(//xref)'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link[@href="http://example.com"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link/linktext[text()="Example link"])'))
+        self.assertFalse(reference.xpath('boolean(//p[@outputclass="title"])'))
+        self.assertFalse(reference.xpath('boolean(//xref)'))
 
     def test_link_attributes(self):
         xml = etree.parse(StringIO('''\
@@ -247,13 +248,13 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
+        reference = transform.to_reference_generated(xml)
 
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@href="http://example.com"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@format="html"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@scope="external"])'))
-        self.assertFalse(concept.xpath('boolean(//p[@outputclass="title"])'))
-        self.assertFalse(concept.xpath('boolean(//xref)'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link[@href="http://example.com"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link[@format="html"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link[@scope="external"])'))
+        self.assertFalse(reference.xpath('boolean(//p[@outputclass="title"])'))
+        self.assertFalse(reference.xpath('boolean(//xref)'))
 
     def test_link_in_section(self):
         xml = etree.parse(StringIO('''\
@@ -273,9 +274,9 @@ class TestDitaConvertToConcept(unittest.TestCase):
         </topic>
         '''))
 
-        concept = transform.to_concept_generated(xml)
+        reference = transform.to_reference_generated(xml)
 
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@href="http://example.com"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/related-links/link/linktext[text()="Example link"])'))
-        self.assertFalse(concept.xpath('boolean(//p[@outputclass="title"])'))
-        self.assertFalse(concept.xpath('boolean(//xref)'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link[@href="http://example.com"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links/link/linktext[text()="Example link"])'))
+        self.assertFalse(reference.xpath('boolean(//p[@outputclass="title"])'))
+        self.assertFalse(reference.xpath('boolean(//xref)'))

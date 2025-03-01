@@ -28,7 +28,8 @@ import sys
 from lxml import etree
 from . import NAME, VERSION, DESCRIPTION
 from .transform import to_concept, to_reference, to_task, \
-                       to_concept_generated, to_task_generated
+                       to_concept_generated, to_reference_generated, \
+                       to_task_generated
 
 # Print a message to standard error output and terminate the script:
 def exit_with_error(error_message, exit_status=errno.EPERM):
@@ -46,6 +47,7 @@ def convert(source_file, target_type):
         'reference':     to_reference,
         'task':          to_task,
         'concept-gen':   to_concept_generated,
+        'reference-gen': to_reference_generated,
         'task-gen':      to_task_generated,
     }[target_type]
 
@@ -83,7 +85,7 @@ def parse_args():
         version=f'{NAME} {VERSION}',
         help='display version information and exit')
     parser.add_argument('-t', '--type',
-        choices=('concept', 'reference', 'task', 'concept-gen', 'task-gen'),
+        choices=('concept', 'reference', 'task', 'concept-gen', 'reference-gen', 'task-gen'),
         required=True,
         help='target DITA content type')
     parser.add_argument('-o', '--output',

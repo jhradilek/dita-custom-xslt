@@ -282,6 +282,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
 
         self.assertFalse(task.xpath('boolean(/task/@outputclass)'))
+        self.assertTrue(task.xpath('boolean(/task[@id="example-topic"])'))
         self.assertTrue(task.xpath('boolean(/task/title[@outputclass="main"])'))
 
     def test_task_structure(self):
