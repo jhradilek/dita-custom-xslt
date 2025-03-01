@@ -27,7 +27,8 @@ import sys
 
 from lxml import etree
 from . import NAME, VERSION, DESCRIPTION
-from .transform import to_concept, to_reference, to_task, to_task_generated
+from .transform import to_concept, to_reference, to_task, \
+                       to_concept_generated, to_task_generated
 
 # Print a message to standard error output and terminate the script:
 def exit_with_error(error_message, exit_status=errno.EPERM):
@@ -41,10 +42,11 @@ def exit_with_error(error_message, exit_status=errno.EPERM):
 def convert(source_file, target_type):
     # Select the appropriate XSLT transformer:
     transform = {
-        'concept':   to_concept,
-        'reference': to_reference,
-        'task':      to_task,
-        'task-gen':  to_task_generated,
+        'concept':       to_concept,
+        'reference':     to_reference,
+        'task':          to_task,
+        'concept-gen':   to_concept_generated,
+        'task-gen':      to_task_generated,
     }[target_type]
 
     # Run the transformation:
@@ -81,7 +83,7 @@ def parse_args():
         version=f'{NAME} {VERSION}',
         help='display version information and exit')
     parser.add_argument('-t', '--type',
-        choices=('concept', 'reference', 'task', 'task-gen'),
+        choices=('concept', 'reference', 'task', 'concept-gen', 'task-gen'),
         required=True,
         help='target DITA content type')
     parser.add_argument('-o', '--output',
