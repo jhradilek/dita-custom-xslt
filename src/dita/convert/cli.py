@@ -67,7 +67,7 @@ def convert(source_file, target_type):
     return xml
 
 # Parse supplied command-line options:
-def parse_args():
+def parse_args(argv=None):
     # Configure the option parser:
     parser = argparse.ArgumentParser(prog=NAME,
         description=DESCRIPTION,
@@ -101,7 +101,7 @@ def parse_args():
         help='specify the DITA topic file to convert')
 
     # Parse the command-line options:
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     # Recognize the instruction to read from standard input:
     if args.file == '-':
