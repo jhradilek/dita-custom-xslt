@@ -64,7 +64,7 @@ def convert(source_file, target_type):
         print(f'{source_file}: {error.message}', file=sys.stderr)
 
     # Return the result:
-    return xml
+    return str(xml)
 
 # Parse supplied command-line options:
 def parse_args(argv=None):
@@ -111,12 +111,12 @@ def parse_args(argv=None):
     try:
         xml = convert(args.file, args.type)
     except OSError as message:
-        exit_with_error(message)
+        exit_with_error(message, errno.ENOENT)
 
     # Determine whether to write to standard output:
     if args.output == sys.stdout or args.output == '-':
         # Print to standard output:
-        sys.stdout.write(str(xml))
+        sys.stdout.write(xml)
 
         # Terminate the script:
         sys.exit(0)
@@ -124,6 +124,9 @@ def parse_args(argv=None):
     # Write to the selected file:
     try:
         with open(args.output, 'w') as f:
-            f.write(str(xml))
+            f.write(xml)
     except Exception as ex:
         exit_with_error(f'{args.output}: {ex}')
+
+    # Return success:
+    sys.exit(0)

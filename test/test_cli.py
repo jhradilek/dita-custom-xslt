@@ -109,3 +109,50 @@ class TestDitaCli(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<reference />')
+
+    def test_opt_output_short(self):
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.open') as file_open:
+            convert.return_value = '<concept />'
+
+            with self.assertRaises(SystemExit) as cm,\
+                 contextlib.redirect_stdout(StringIO()) as out:
+                    cli.parse_args(['-t', 'concept', '-o', 'out.dita', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '')
+        file_open.assert_called_once_with('out.dita', 'w')
+        file_open().__enter__().write.assert_called_once_with('<concept />')
+
+    def test_opt_output_long(self):
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.open') as file_open:
+            convert.return_value = '<concept />'
+
+            with self.assertRaises(SystemExit) as cm,\
+                 contextlib.redirect_stdout(StringIO()) as out:
+                    cli.parse_args(['-t', 'concept', '--output', 'out.dita', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '')
+        file_open.assert_called_once_with('out.dita', 'w')
+        file_open().__enter__().write.assert_called_once_with('<concept />')
+
+    def test_opt_output_stdout(self):
+        with patch('src.dita.convert.cli.convert') as convert:
+            convert.return_value = '<concept />'
+
+            with self.assertRaises(SystemExit) as cm,\
+                 contextlib.redirect_stdout(StringIO()) as out:
+                    cli.parse_args(['-t', 'concept', '-o', '-', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '<concept />')
+
+    def test_invalid_file(self):
+        with self.assertRaises(SystemExit) as cm,\
+             contextlib.redirect_stderr(StringIO()) as err:
+                 cli.parse_args(['-t', 'concept', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, errno.ENOENT)
+        self.assertRegex(err.getvalue(), rf'^{NAME}:.*topic\.dita')
