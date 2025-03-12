@@ -39,25 +39,56 @@ def exit_with_error(error_message, exit_status=errno.EPERM):
     # Terminate the script with the supplied exit status:
     sys.exit(exit_status)
 
+# Extract the content type from the root element outputclass:
+def get_type(source_file, source_xml):
+    # Get the root element attributes:
+    attributes = source_xml.getroot().attrib
+
+    # Verify that the outputclass attribute is defined:
+    if 'outputclass' not in attributes:
+        exit_with_error(f'{source_file}: error: outputclass not found, use -t/--type', errno.EINVAL)
+
+    # Get the outputclass attribute value:
+    output_class = attributes['outputclass'].lower()
+
+    # Verify that the outputclass value is supported:
+    if output_class not in ['concept', 'procedure', 'task', 'reference']:
+        exit_with_error(f'{source_file}: error: unsupported outputclass "{output_class}", use -t/--type', errno.EINVAL)
+
+    # Return the adjusted outputclass:
+    return output_class.replace('procedure', 'task')
+
 # Convert the selected file:
-def convert(source_file, target_type):
+def convert(source_file, target_type=None, generated=False):
+    # Parse the source file:
+    try:
+        source_xml = etree.parse(source_file)
+    except etree.XMLSyntaxError as message:
+        exit_with_error(f'{source_file}: error: {message}')
+
+    # Determine the target type from the source file if not provided:
+    if target_type is None:
+        target_type = get_type(source_file, source_xml)
+
     # Select the appropriate XSLT transformer:
     transform = {
-        'concept':       to_concept,
-        'reference':     to_reference,
-        'task':          to_task,
-        'concept-gen':   to_concept_generated,
-        'reference-gen': to_reference_generated,
-        'task-gen':      to_task_generated,
-    }[target_type]
+        False: {
+            'concept':       to_concept,
+            'reference':     to_reference,
+            'task':          to_task,
+        },
+        True: {
+            'concept':   to_concept_generated,
+            'reference': to_reference_generated,
+            'task':      to_task_generated,
+        },
+    }[generated][target_type]
 
     # Run the transformation:
     try:
-        xml = transform(etree.parse(source_file))
+        xml = transform(source_xml)
     except etree.XSLTApplyError as message:
         exit_with_error(f'{source_file}: {message}')
-    except etree.XMLSyntaxError as message:
-        exit_with_error(f'{source_file}: ERROR: {message}')
 
     # Print any warning messages to standard error output:
     for error in transform.error_log:
@@ -84,7 +115,7 @@ def parse_args(argv=None):
         help='write output to the selected file instead of stdout')
     parser.add_argument('-t', '--type',
         choices=('concept', 'reference', 'task'),
-        required=True,
+        default=None,
         help='specify the target DITA content type')
     parser.add_argument('-g', '--generated',
         default=False,
@@ -115,12 +146,9 @@ def parse_args(argv=None):
     if args.file == '-':
         args.file = sys.stdin
 
-    # Compose the selected target type:
-    type = f'{args.type}-gen' if args.generated else args.type
-
     # Convert the selected file:
     try:
-        xml = convert(args.file, type)
+        xml = convert(args.file, args.type, args.generated)
     except OSError as message:
         exit_with_error(message, errno.ENOENT)
 
