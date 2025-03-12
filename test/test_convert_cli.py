@@ -57,7 +57,7 @@ class TestDitaCli(unittest.TestCase):
                 cli.parse_args(['--type', 'topic', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, errno.ENOENT)
-        self.assertRegex(err.getvalue(), rf'^usage: {NAME}')
+        self.assertRegex(err.getvalue(), r'error:.*invalid choice')
 
     def test_opt_type_long(self):
         with patch('src.dita.convert.cli.convert') as convert:
@@ -189,6 +189,14 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
         convert.assert_called_once_with('topic.dita', 'concept', False)
+
+    def test_opt_generated_exclusivity(self):
+        with self.assertRaises(SystemExit) as cm,\
+             contextlib.redirect_stderr(StringIO()) as err:
+            cli.parse_args(['--generate', '--no-generate', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, errno.ENOENT)
+        self.assertRegex(err.getvalue(), r'error:.*not allowed with argument')
 
     def test_invalid_file(self):
         with self.assertRaises(SystemExit) as cm,\
