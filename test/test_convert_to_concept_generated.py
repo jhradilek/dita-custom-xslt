@@ -16,6 +16,37 @@ class TestDitaConvertToConcept(unittest.TestCase):
 
         self.assertEqual(str(cm.exception), 'ERROR: Not a DITA topic')
 
+    def test_nested_section(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <section>
+                    <title>First section</title>
+                    <section>
+                        <title>Unsupported content</title>
+                        <p>Unsupported content</p>
+                    </section>
+                </section>
+                <section>
+                    <title>Second section</title>
+                </section>
+            </body>
+        </topic>
+        '''))
+
+        concept = transform.to_concept_generated(xml)
+        err = transform.to_concept_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, 'WARNING: Nested sections not allowed in DITA, skipping...')
+
+        self.assertFalse(concept.xpath('boolean(//section/section)'))
+        self.assertFalse(concept.xpath('boolean(//*[text()="Unsupported content"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[1]/title[text()="First section"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[2]/title[text()="Second section"])'))
+
     def test_nonlist_elements_in_related_links(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
