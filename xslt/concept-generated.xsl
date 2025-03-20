@@ -74,6 +74,11 @@
     </xsl:element>
   </xsl:template>
 
+  <!-- Issue a warning if the converted file contains a nested section: -->
+  <xsl:template match="//section/section">
+    <xsl:message terminate="no">WARNING: Nested sections not allowed in DITA, skipping...</xsl:message>
+  </xsl:template>
+
   <!-- Transform the body element: -->
   <xsl:template match="body">
     <xsl:element name="conbody">
