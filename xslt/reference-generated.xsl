@@ -50,6 +50,11 @@
     <xsl:message terminate="yes">ERROR: Not a DITA topic</xsl:message>
   </xsl:template>
 
+  <!-- Issue a warning if the converted file contains a nested section: -->
+  <xsl:template match="//section/section">
+    <xsl:message terminate="no">WARNING: Nested sections not allowed in DITA, skipping...</xsl:message>
+  </xsl:template>
+
   <!-- Remove the outputclass attribute from the root element: -->
   <xsl:template match="/topic/@outputclass" />
 
