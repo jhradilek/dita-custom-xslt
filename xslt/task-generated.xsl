@@ -61,6 +61,9 @@
   <!-- Remove the outputclass attribute from the root element: -->
   <xsl:template match="/topic/@outputclass" />
 
+  <!-- Prevent duplication of the abstract paragraph (used for shortdesc): -->
+  <xsl:template match="//body/p[1][@outputclass='abstract']" />
+
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
     <xsl:copy>
@@ -77,6 +80,10 @@
 
   <!-- Transform the body element: -->
   <xsl:template match="body">
+    <!-- Compose the shortdesc element: -->
+    <xsl:call-template name="shortdesc">
+      <xsl:with-param name="contents" select="p[1][@outputclass='abstract']" />
+    </xsl:call-template>
     <xsl:element name="taskbody">
       <!-- Compose the prereq element: -->
       <xsl:call-template name="compose-element">
@@ -130,6 +137,16 @@
         <xsl:message terminate="no">WARNING: Unsupported title '<xsl:copy-of select="." />' found, skipping...</xsl:message>
       </xsl:if>
     </xsl:for-each>
+  </xsl:template>
+
+  <!-- Compose the shortdesc element: -->
+  <xsl:template name="shortdesc">
+    <xsl:param name="contents" />
+    <xsl:if test="$contents">
+      <xsl:element name="shortdesc">
+        <xsl:apply-templates select="$contents/text()|$contents/*" />
+      </xsl:element>
+    </xsl:if>
   </xsl:template>
 
   <!-- Compose the steps element: -->

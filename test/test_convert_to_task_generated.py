@@ -290,6 +290,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
+                <p outputclass="abstract">Topic abstract</p>
                 <p>Topic introduction</p>
                 <p outputclass="title"><b>Prerequisites</b></p>
                 <ul>
@@ -324,8 +325,10 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task)'))
         self.assertTrue(task.xpath('boolean(/task[@id="example-topic"])'))
         self.assertTrue(task.xpath('boolean(/task/title[text()="Topic title"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[text()="Topic abstract"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody)'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/prereq/ul/li[text()="Task prerequisite"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/context/p[text()="Topic abstract"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/result/ul/li[text()="Verification step"])'))
