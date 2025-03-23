@@ -206,6 +206,7 @@ class TestDitaConvertToReference(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
+                <p outputclass="abstract">Topic abstract</p>
                 <p>Topic body</p>
             </body>
         </topic>
@@ -220,9 +221,44 @@ class TestDitaConvertToReference(unittest.TestCase):
         self.assertTrue(reference.xpath('boolean(/reference)'))
         self.assertTrue(reference.xpath('boolean(/reference[@id="example-topic"])'))
         self.assertTrue(reference.xpath('boolean(/reference/title[text()="Topic title"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
         self.assertTrue(reference.xpath('boolean(/reference/refbody)'))
         self.assertTrue(reference.xpath('boolean(/reference/refbody/section)'))
         self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic body"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic abstract"])'))
+
+    def test_multiple_abstracts(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="abstract">Topic abstract</p>
+                <p outputclass="abstract">Topic introduction</p>
+            </body>
+        </topic>
+        '''))
+
+        reference = transform.to_reference_generated(xml)
+
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/shortdesc[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic abstract"])'))
+
+    def test_misplaced_abstract(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="abstract">Topic abstract</p>
+            </body>
+        </topic>
+        '''))
+
+        reference = transform.to_reference_generated(xml)
+
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[1][text()="Topic introduction"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[2][text()="Topic abstract"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/shortdesc)'))
 
     def test_link_without_text(self):
         xml = etree.parse(StringIO('''\
