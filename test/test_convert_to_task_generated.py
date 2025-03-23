@@ -335,6 +335,39 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[text()="Troubleshooting step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/postreq/ul/li[text()="Next step"])'))
 
+    def test_multiple_abstracts(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="abstract">Topic abstract</p>
+                <p outputclass="abstract">Topic introduction</p>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[text()="Topic abstract"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/context/p[text()="Topic abstract"])'))
+        self.assertFalse(task.xpath('boolean(/task/shortdesc[text()="Topic introduction"])'))
+
+    def test_misplaced_abstract(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="abstract">Topic abstract</p>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[1][text()="Topic introduction"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[2][text()="Topic abstract"])'))
+        self.assertFalse(task.xpath('boolean(/task/shortdesc)'))
+
     def test_task_steps_unordered(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
