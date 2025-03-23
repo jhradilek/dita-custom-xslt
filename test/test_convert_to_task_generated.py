@@ -349,8 +349,8 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
 
         self.assertTrue(task.xpath('boolean(/task/shortdesc[text()="Topic abstract"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
-        self.assertFalse(task.xpath('boolean(/task/taskbody/context/p[text()="Topic abstract"])'))
         self.assertFalse(task.xpath('boolean(/task/shortdesc[text()="Topic introduction"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/context/p[text()="Topic abstract"])'))
 
     def test_misplaced_abstract(self):
         xml = etree.parse(StringIO('''\

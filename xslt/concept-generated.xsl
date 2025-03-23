@@ -53,6 +53,9 @@
   <!-- Remove the outputclass attribute from the root element: -->
   <xsl:template match="/topic/@outputclass" />
 
+  <!-- Prevent duplication of the abstract paragraph (used for shortdesc): -->
+  <xsl:template match="//body/p[1][@outputclass='abstract']" />
+
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
     <xsl:copy>
@@ -81,12 +84,28 @@
 
   <!-- Transform the body element: -->
   <xsl:template match="body">
+    <!-- Compose the shortdesc element: -->
+    <xsl:call-template name="shortdesc">
+      <xsl:with-param name="contents" select="p[1][@outputclass='abstract']" />
+    </xsl:call-template>
+    <!-- Compose the conbody element: -->
     <xsl:element name="conbody">
       <xsl:apply-templates select="@*|*[not(self::p[@outputclass='title'][b='Additional resources'] or preceding-sibling::p[@outputclass='title'][b='Additional resources'])]" />
     </xsl:element>
+    <!-- Compose the related-links element: -->
     <xsl:call-template name="related-links">
       <xsl:with-param name="contents" select="//p[@outputclass='title'][b='Additional resources']/following-sibling::*" />
     </xsl:call-template>
+  </xsl:template>
+
+  <!-- Compose the shortdesc element: -->
+  <xsl:template name="shortdesc">
+    <xsl:param name="contents" />
+    <xsl:if test="$contents">
+      <xsl:element name="shortdesc">
+        <xsl:apply-templates select="$contents/text()|$contents/*" />
+      </xsl:element>
+    </xsl:if>
   </xsl:template>
 
   <!-- Compose the related-links element: -->

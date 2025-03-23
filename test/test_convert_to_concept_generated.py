@@ -206,6 +206,7 @@ class TestDitaConvertToConcept(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
+                <p outputclass="abstract">Topic abstract</p>
                 <p>Topic body</p>
             </body>
         </topic>
@@ -220,8 +221,43 @@ class TestDitaConvertToConcept(unittest.TestCase):
         self.assertTrue(concept.xpath('boolean(/concept)'))
         self.assertTrue(concept.xpath('boolean(/concept[@id="example-topic"])'))
         self.assertTrue(concept.xpath('boolean(/concept/title[text()="Topic title"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[text()="Topic abstract"])'))
         self.assertTrue(concept.xpath('boolean(/concept/conbody)'))
         self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic body"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/conbody/p[text()="Topic abstract"])'))
+
+    def test_multiple_abstracts(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="abstract">Topic abstract</p>
+                <p outputclass="abstract">Topic introduction</p>
+            </body>
+        </topic>
+        '''))
+
+        concept = transform.to_concept_generated(xml)
+
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[text()="Topic abstract"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/shortdesc[text()="Topic introduction"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/conbody/p[text()="Topic abstract"])'))
+
+    def test_misplaced_abstract(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p>Topic introduction</p>
+                <p outputclass="abstract">Topic abstract</p>
+            </body>
+        </topic>
+        '''))
+
+        concept = transform.to_concept_generated(xml)
+
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[1][text()="Topic introduction"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[2][text()="Topic abstract"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/shortdesc)'))
 
     def test_link_without_text(self):
         xml = etree.parse(StringIO('''\
