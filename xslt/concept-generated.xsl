@@ -9,7 +9,7 @@
   guidelines for  concept modules  as defined  in the Modular Documentation
   Reference Guide[2].
 
-  Usage: xsltproc ––novalid concept.xsl YOUR_TOPIC.dita
+  Usage: xsltproc ––novalid concept-generated.xsl YOUR_TOPIC.dita
 
   [1] https://github.com/jhradilek/asciidoctor-dita-topic
   [2] https://redhat-documentation.github.io/modular-docs/
