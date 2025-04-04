@@ -77,6 +77,9 @@
     </xsl:element>
   </xsl:template>
 
+  <!-- Remove the Additional resources section (used for related-links): -->
+  <xsl:template match="//section[title='Additional resources']" />
+
   <!-- Issue a warning if the converted file contains a nested section: -->
   <xsl:template match="//section/section">
     <xsl:message terminate="no">WARNING: Nested sections not allowed in DITA, skipping...</xsl:message>
@@ -94,7 +97,7 @@
     </xsl:element>
     <!-- Compose the related-links element: -->
     <xsl:call-template name="related-links">
-      <xsl:with-param name="contents" select="//p[@outputclass='title'][b='Additional resources']/following-sibling::*" />
+      <xsl:with-param name="contents" select="//p[@outputclass='title'][b='Additional resources']/following-sibling::*|//section[title='Additional resources']/*[not(self::title)]" />
     </xsl:call-template>
   </xsl:template>
 

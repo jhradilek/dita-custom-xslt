@@ -346,3 +346,30 @@ class TestDitaConvertToConcept(unittest.TestCase):
         self.assertTrue(concept.xpath('boolean(/concept/related-links/link/linktext[text()="Example link"])'))
         self.assertFalse(concept.xpath('boolean(//p[@outputclass="title"])'))
         self.assertFalse(concept.xpath('boolean(//xref)'))
+
+    def test_links_as_section(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <section>
+                    <title>Section title</title>
+                    <p>Section introduction</p>
+                </section>
+                <section>
+                    <title>Additional resources</title>
+                    <ul>
+                        <li><xref href="http://example.com" format="html" scope="external">Example link</xref></li>
+                    </ul>
+                </section>
+            </body>
+        </topic>
+        '''))
+
+        concept = transform.to_concept_generated(xml)
+
+        self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@href="http://example.com"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links/link/linktext[text()="Example link"])'))
+        self.assertFalse(concept.xpath('boolean(//section[title="Additional resources"])'))
+        self.assertFalse(concept.xpath('boolean(//xref)'))
