@@ -371,5 +371,7 @@ class TestDitaConvertToConcept(unittest.TestCase):
 
         self.assertTrue(concept.xpath('boolean(/concept/related-links/link[@href="http://example.com"])'))
         self.assertTrue(concept.xpath('boolean(/concept/related-links/link/linktext[text()="Example link"])'))
+        self.assertTrue(concept.xpath('boolean(//section/title[text()="Section title"])'))
+        self.assertTrue(concept.xpath('boolean(//section/p[text()="Section introduction"])'))
         self.assertFalse(concept.xpath('boolean(//section[title="Additional resources"])'))
         self.assertFalse(concept.xpath('boolean(//xref)'))
