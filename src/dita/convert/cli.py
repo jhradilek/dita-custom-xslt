@@ -32,7 +32,7 @@ from .transform import to_concept, to_reference, to_task, \
                        to_task_generated
 
 # Print a message to standard error output and terminate the script:
-def exit_with_error(error_message, exit_status=errno.EPERM):
+def exit_with_error(error_message: str, exit_status: int = errno.EPERM) -> None:
     # Print the supplied message to standard error output:
     print(f'{NAME}: {error_message}', file=sys.stderr)
 
@@ -40,7 +40,7 @@ def exit_with_error(error_message, exit_status=errno.EPERM):
     sys.exit(exit_status)
 
 # Extract the content type from the root element outputclass:
-def get_type(source_file, source_xml):
+def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
     # Get the root element attributes:
     attributes = source_xml.getroot().attrib
 
@@ -49,7 +49,7 @@ def get_type(source_file, source_xml):
         exit_with_error(f'{source_file}: error: outputclass not found, use -t/--type', errno.EINVAL)
 
     # Get the outputclass attribute value:
-    output_class = attributes['outputclass'].lower()
+    output_class = str(attributes['outputclass'].lower())
 
     # Verify that the outputclass value is supported:
     if output_class not in ['concept', 'procedure', 'task', 'reference']:
@@ -59,7 +59,7 @@ def get_type(source_file, source_xml):
     return output_class.replace('procedure', 'task')
 
 # Convert the selected file:
-def convert(source_file, target_type=None, generated=False):
+def convert(source_file: str, target_type: str | None = None, generated: bool = False) -> str:
     # Parse the source file:
     try:
         source_xml = etree.parse(source_file)
@@ -91,8 +91,9 @@ def convert(source_file, target_type=None, generated=False):
         exit_with_error(f'{source_file}: {message}')
 
     # Print any warning messages to standard error output:
-    for error in transform.error_log:
-        print(f'{source_file}: {error.message}', file=sys.stderr)
+    if hasattr(transform, 'error_log'):
+        for error in transform.error_log:
+            print(f'{source_file}: {error.message}', file=sys.stderr)
 
     # Return the result:
     return str(xml)
