@@ -308,7 +308,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
                 <ol>
                     <li>Troubleshooting step</li>
                 </ol>
-                <p outputclass="title"><b>Next steps</b></p>
+                <p outputclass="title"><b>Next step</b></p>
                 <ul>
                     <li>Next step</li>
                 </ul>
@@ -333,6 +333,70 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/result/ul/li[text()="Verification step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[text()="Troubleshooting step"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/postreq/ul/li[text()="Next step"])'))
+
+    def test_result(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="title"><b>Result</b></p>
+                <ul>
+                    <li>Verification step</li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/taskbody/result/ul/li[text()="Verification step"])'))
+
+    def test_results(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="title"><b>Results</b></p>
+                <ul>
+                    <li>Verification step</li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/taskbody/result/ul/li[text()="Verification step"])'))
+
+    def test_troubleshooting_steps(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="title"><b>Troubleshooting steps</b></p>
+                <ol>
+                    <li>Troubleshooting step</li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[text()="Troubleshooting step"])'))
+
+    def test_next_steps(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="title"><b>Next steps</b></p>
+                <ul>
+                    <li>Next step</li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
         self.assertTrue(task.xpath('boolean(/task/taskbody/postreq/ul/li[text()="Next step"])'))
 
     def test_multiple_abstracts(self):
