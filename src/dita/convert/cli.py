@@ -158,7 +158,7 @@ def parse_args(argv: list[str] | None = None) -> None:
     try:
         xml = convert(args.file, args.type, args.generated)
     except OSError as message:
-        exit_with_error(message, errno.ENOENT)
+        exit_with_error(str(message), errno.ENOENT)
 
     # Determine whether to write to standard output:
     if args.output == sys.stdout or args.output == '-':
