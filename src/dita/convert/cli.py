@@ -52,11 +52,17 @@ def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
     output_class = str(attributes['outputclass'].lower())
 
     # Verify that the outputclass value is supported:
-    if output_class not in ['concept', 'procedure', 'task', 'reference']:
+    if output_class not in ['assembly', 'concept', 'procedure', 'task', 'reference']:
         exit_with_error(f'{source_file}: error: unsupported outputclass "{output_class}", use -t/--type', errno.EINVAL)
 
+    # Adjust the outputclass if needed:
+    if output_class == 'assembly':
+        output_class = output_class.replace('assembly', 'concept')
+    if output_class == 'procedure':
+        output_class = output_class.replace('procedure', 'task')
+
     # Return the adjusted outputclass:
-    return output_class.replace('procedure', 'task')
+    return output_class
 
 # Convert the selected file:
 def convert(source_file: str, target_type: str | None = None, generated: bool = False) -> str:
