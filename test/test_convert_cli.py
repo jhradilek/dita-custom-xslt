@@ -206,6 +206,15 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(cm.exception.code, errno.ENOENT)
         self.assertRegex(err.getvalue(), rf'^{NAME}:.*topic\.dita')
 
+    def test_get_type_assembly(self):
+        xml = etree.parse(StringIO('<topic outputclass="assembly" />'))
+
+        with contextlib.redirect_stderr(StringIO()) as err:
+            target_type = cli.get_type('topic.dita', xml)
+
+        self.assertEqual(err.getvalue().rstrip(), '')
+        self.assertEqual(target_type, 'concept')
+
     def test_get_type_concept(self):
         xml = etree.parse(StringIO('<topic outputclass="concept" />'))
 
