@@ -2,11 +2,12 @@
 name = "dita-convert"
 authors = [{name = "Jaromir Hradilek", email="jhradilek@gmail.com"}]
 description = "Convert a generic DITA topic to a specialized concept, task, or reference."
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">= 3.10"
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
