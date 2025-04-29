@@ -335,6 +335,22 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[text()="Troubleshooting step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/postreq/ul/li[text()="Next step"])'))
 
+    def test_prerequisite(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="title"><b>Prerequisite</b></p>
+                <ul>
+                    <li>Task prerequisite</li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/taskbody/prereq/ul/li[text()="Task prerequisite"])'))
+
     def test_result(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">

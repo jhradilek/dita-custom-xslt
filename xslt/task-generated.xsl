@@ -88,7 +88,7 @@
       <!-- Compose the prereq element: -->
       <xsl:call-template name="compose-element">
         <xsl:with-param name="name" select="'prereq'" />
-        <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Prerequisites']]" />
+        <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Prerequisite' or b='Prerequisites']]" />
       </xsl:call-template>
       <!-- Compose the context element: -->
       <xsl:choose>
@@ -132,7 +132,7 @@
 
     <!-- Issue a warning if the converted file contains an unsupported title:  -->
     <xsl:for-each select="p[@outputclass='title']/b/text()">
-      <xsl:variable name="titles" select="'|Prerequisites|Procedure|Verification|Result|Results|Troubleshooting|Troubleshooting steps|Next steps|Next step|Additional resources|'" />
+      <xsl:variable name="titles" select="'|Prerequisite|Prerequisites|Procedure|Verification|Result|Results|Troubleshooting|Troubleshooting steps|Next steps|Next step|Additional resources|'" />
       <xsl:if test="not(contains($titles, concat('|', ., '|')))">
         <xsl:message terminate="no">WARNING: Unsupported title '<xsl:copy-of select="." />' found, skipping...</xsl:message>
       </xsl:if>
