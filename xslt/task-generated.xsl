@@ -117,7 +117,7 @@
       <!-- Compose the tasktroubleshooting element: -->
       <xsl:call-template name="compose-element">
         <xsl:with-param name="name" select="'tasktroubleshooting'" />
-        <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Troubleshooting' or b='Troubleshooting steps']]" />
+        <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Troubleshooting' or b='Troubleshooting step' or b='Troubleshooting steps']]" />
       </xsl:call-template>
       <!-- Compose the postreq element: -->
       <xsl:call-template name="compose-element">
@@ -132,7 +132,7 @@
 
     <!-- Issue a warning if the converted file contains an unsupported title:  -->
     <xsl:for-each select="p[@outputclass='title']/b/text()">
-      <xsl:variable name="titles" select="'|Prerequisite|Prerequisites|Procedure|Verification|Result|Results|Troubleshooting|Troubleshooting steps|Next steps|Next step|Additional resources|'" />
+      <xsl:variable name="titles" select="'|Prerequisite|Prerequisites|Procedure|Verification|Result|Results|Troubleshooting|Troubleshooting step|Troubleshooting steps|Next step|Next steps|Additional resources|'" />
       <xsl:if test="not(contains($titles, concat('|', ., '|')))">
         <xsl:message terminate="no">WARNING: Unsupported title '<xsl:copy-of select="." />' found, skipping...</xsl:message>
       </xsl:if>
