@@ -32,6 +32,14 @@ from .transform import to_concept, to_reference, to_task, \
                        to_concept_generated, to_reference_generated, \
                        to_task_generated
 
+# Print a message to standard error output and terminate the script:
+def exit_with_error(error_message: str, exit_status: int = errno.EPERM) -> None:
+    # Print the supplied message to standard error output:
+    print(f'{NAME}: {error_message}', file=sys.stderr)
+
+    # Terminate the script with the supplied exit status:
+    sys.exit(exit_status)
+
 # Print a message to standard error output:
 def warn(error_message: str) -> None:
     # Print the supplied message to standard error output:
@@ -166,6 +174,15 @@ def parse_args(argv: list[str] | None = None) -> None:
     if args.output == '-':
         args.output = sys.stdout
 
+    # Create the target directory:
+    if args.directory:
+        try:
+            os.makedirs(args.directory)
+        except FileExistsError:
+            pass
+        except Exception:
+            exit_with_error(f'error: Unable to create target directory: {args.directory}', errno.EACCES)
+
     # Process all supplied files:
     for input_file in args.files:
         try:
@@ -189,15 +206,8 @@ def parse_args(argv: list[str] | None = None) -> None:
             # Proceed to the next file:
             continue
 
-        # Determine whether to write to a directory:
+        # Compose the target file path:
         if args.directory:
-            # Create the target directory:
-            try:
-                os.makedirs(args.directory)
-            except FileExistsError:
-                pass
-
-            # Compose the target file path:
             if input_file == sys.stdin:
                 output_file = str(os.path.join(args.directory, 'out.adoc'))
             else:
