@@ -24,6 +24,7 @@
 import argparse
 import errno
 import sys
+import os
 
 from lxml import etree
 from . import NAME, VERSION, DESCRIPTION
@@ -31,13 +32,10 @@ from .transform import to_concept, to_reference, to_task, \
                        to_concept_generated, to_reference_generated, \
                        to_task_generated
 
-# Print a message to standard error output and terminate the script:
-def exit_with_error(error_message: str, exit_status: int = errno.EPERM) -> None:
+# Print a message to standard error output:
+def warn(error_message: str) -> None:
     # Print the supplied message to standard error output:
     print(f'{NAME}: {error_message}', file=sys.stderr)
-
-    # Terminate the script with the supplied exit status:
-    sys.exit(exit_status)
 
 # Extract the content type from the root element outputclass:
 def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
@@ -46,14 +44,14 @@ def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
 
     # Verify that the outputclass attribute is defined:
     if 'outputclass' not in attributes:
-        exit_with_error(f'{source_file}: error: outputclass not found, use -t/--type', errno.EINVAL)
+        raise Exception(f'{source_file}: error: outputclass not found, use -t/--type')
 
     # Get the outputclass attribute value:
     output_class = str(attributes['outputclass'].lower())
 
     # Verify that the outputclass value is supported:
     if output_class not in ['assembly', 'concept', 'procedure', 'task', 'reference']:
-        exit_with_error(f'{source_file}: error: unsupported outputclass "{output_class}", use -t/--type', errno.EINVAL)
+        raise Exception(f'{source_file}: error: unsupported outputclass "{output_class}", use -t/--type')
 
     # Adjust the outputclass if needed:
     if output_class == 'assembly':
@@ -70,11 +68,14 @@ def convert(source_file: str, target_type: str | None = None, generated: bool = 
     try:
         source_xml = etree.parse(source_file)
     except etree.XMLSyntaxError as message:
-        exit_with_error(f'{source_file}: error: {message}')
+        raise Exception(f'{source_file}: error: {message}')
 
     # Determine the target type from the source file if not provided:
     if target_type is None:
-        target_type = get_type(source_file, source_xml)
+        try:
+            target_type = get_type(source_file, source_xml)
+        except Exception as message:
+            raise Exception(message)
 
     # Select the appropriate XSLT transformer:
     transform = {
@@ -94,7 +95,7 @@ def convert(source_file: str, target_type: str | None = None, generated: bool = 
     try:
         xml = transform(source_xml)
     except etree.XSLTApplyError as message:
-        exit_with_error(f'{source_file}: {message}')
+        raise Exception(f'{source_file}: {message}')
 
     # Print any warning messages to standard error output:
     if hasattr(transform, 'error_log'):
@@ -118,9 +119,13 @@ def parse_args(argv: list[str] | None = None) -> None:
     # Add supported command-line options:
     info = parser.add_mutually_exclusive_group()
     gen  = parser.add_mutually_exclusive_group()
-    parser.add_argument('-o', '--output',
+    out  = parser.add_mutually_exclusive_group()
+    out.add_argument('-o', '--output', metavar='FILE',
         default=sys.stdout,
         help='write output to the selected file instead of stdout')
+    out.add_argument('-d', '--directory', metavar='DIRECTORY',
+        default=False,
+        help='write output to the selected directory instead of stdout')
     parser.add_argument('-t', '--type',
         choices=('concept', 'reference', 'task'),
         default=None,
@@ -142,38 +147,74 @@ def parse_args(argv: list[str] | None = None) -> None:
         help='display version information and exit')
 
     # Add supported command-line arguments:
-    parser.add_argument('file', metavar='FILE',
-        default=sys.stdin,
-        nargs='?',
-        help='specify the DITA topic file to convert')
+    parser.add_argument('files', metavar='FILE',
+        default='-',
+        nargs='*',
+        help='specify the DITA topic files to convert')
 
     # Parse the command-line options:
     args = parser.parse_args(argv)
 
+    # Set the initial exit code:
+    exit_code = 0
+
     # Recognize the instruction to read from standard input:
-    if args.file == '-':
-        args.file = sys.stdin
+    if args.files == '-':
+        args.files = [sys.stdin]
 
-    # Convert the selected file:
-    try:
-        xml = convert(args.file, args.type, args.generated)
-    except OSError as message:
-        exit_with_error(str(message), errno.ENOENT)
+    # Recognize the instruction to write to standard output:
+    if args.output == '-':
+        args.output = sys.stdout
 
-    # Determine whether to write to standard output:
-    if args.output == sys.stdout or args.output == '-':
-        # Print to standard output:
-        sys.stdout.write(xml)
+    # Process all supplied files:
+    for input_file in args.files:
+        try:
+            # Convert the selected file:
+            xml = convert(input_file, args.type, args.generated)
+        except (OSError, Exception) as message:
+            # Report the error:
+            warn(str(message))
 
-        # Terminate the script:
-        sys.exit(0)
+            # Update the exit code:
+            exit_code = errno.EPERM
 
-    # Write to the selected file:
-    try:
-        with open(args.output, 'w') as f:
-            f.write(xml)
-    except Exception as ex:
-        exit_with_error(f'{args.output}: {ex}')
+            # Do not proceed further with this file:
+            continue
 
-    # Return success:
-    sys.exit(0)
+        # Determine whether to write to standard output:
+        if args.output == sys.stdout and not args.directory:
+            # Print the converted content to standard output:
+            sys.stdout.write(xml)
+
+            # Proceed to the next file:
+            continue
+
+        # Determine whether to write to a directory:
+        if args.directory:
+            # Create the target directory:
+            try:
+                os.makedirs(args.directory)
+            except FileExistsError:
+                pass
+
+            # Compose the target file path:
+            if input_file == sys.stdin:
+                output_file = str(os.path.join(args.directory, 'out.adoc'))
+            else:
+                output_file = str(os.path.join(args.directory, os.path.basename(input_file)))
+        else:
+            output_file = args.output
+
+        try:
+            # Write the converted content to the selected file:
+            with open(output_file, 'w') as f:
+                f.write(xml)
+        except Exception as ex:
+            # Report the error:
+            warn(f'{output_file}: {ex}')
+
+            # Update the exit code:
+            exit_code = errno.EPERM
+
+    # Return the exit code:
+    sys.exit(exit_code)

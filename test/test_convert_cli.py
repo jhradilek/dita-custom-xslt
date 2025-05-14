@@ -1,6 +1,7 @@
 import unittest
 import contextlib
 import errno
+import os
 from io import StringIO
 from lxml import etree
 from unittest.mock import mock_open, patch
@@ -142,6 +143,46 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
 
+    def test_opt_directory_short(self):
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.open') as file_open,\
+             patch('src.dita.convert.cli.os.makedirs') as make_dir:
+            convert.return_value = '<concept />'
+
+            with self.assertRaises(SystemExit) as cm,\
+                contextlib.redirect_stdout(StringIO()) as out:
+                    cli.parse_args(['-t', 'concept', '-d', 'out', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '')
+        make_dir.assert_called_once_with('out')
+        file_open.assert_called_once_with(os.path.join('out', 'topic.dita'), 'w')
+        file_open().__enter__().write.assert_called_once_with('<concept />')
+
+    def test_opt_directory_long(self):
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.open') as file_open,\
+             patch('src.dita.convert.cli.os.makedirs') as make_dir:
+            convert.return_value = '<concept />'
+
+            with self.assertRaises(SystemExit) as cm,\
+                contextlib.redirect_stdout(StringIO()) as out:
+                    cli.parse_args(['-t', 'concept', '--directory', 'out', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '')
+        make_dir.assert_called_once_with('out')
+        file_open.assert_called_once_with(os.path.join('out', 'topic.dita'), 'w')
+        file_open().__enter__().write.assert_called_once_with('<concept />')
+
+    def test_opt_directory_exclusivity(self):
+        with self.assertRaises(SystemExit) as cm,\
+             contextlib.redirect_stderr(StringIO()) as err:
+            cli.parse_args(['--output', 'out.dita', '--directory', 'out', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, errno.ENOENT)
+        self.assertRegex(err.getvalue(), r'error:.*not allowed with argument')
+
     def test_opt_generated_short(self):
         with patch('src.dita.convert.cli.convert') as convert:
             convert.return_value = '<concept />'
@@ -203,7 +244,7 @@ class TestDitaCli(unittest.TestCase):
              contextlib.redirect_stderr(StringIO()) as err:
                  cli.parse_args(['-t', 'concept', 'topic.dita'])
 
-        self.assertEqual(cm.exception.code, errno.ENOENT)
+        self.assertEqual(cm.exception.code, errno.EPERM)
         self.assertRegex(err.getvalue(), rf'^{NAME}:.*topic\.dita')
 
     def test_get_type_assembly(self):
@@ -254,19 +295,15 @@ class TestDitaCli(unittest.TestCase):
     def test_get_type_missing(self):
         xml = etree.parse(StringIO('<topic />'))
 
-        with self.assertRaises(SystemExit) as cm,\
-             contextlib.redirect_stderr(StringIO()) as err:
+        with self.assertRaises(Exception) as cm:
             target_type = cli.get_type('topic.dita', xml)
 
-        self.assertEqual(cm.exception.code, errno.EINVAL)
-        self.assertRegex(err.getvalue(), r'topic\.dita: error: outputclass not found')
+        self.assertRegex(str(cm.exception), r'topic\.dita: error: outputclass not found')
 
     def test_get_type_invalid(self):
         xml = etree.parse(StringIO('<topic outputclass="snippet" />'))
 
-        with self.assertRaises(SystemExit) as cm,\
-             contextlib.redirect_stderr(StringIO()) as err:
+        with self.assertRaises(Exception) as cm:
             target_type = cli.get_type('topic.dita', xml)
 
-        self.assertEqual(cm.exception.code, errno.EINVAL)
-        self.assertRegex(err.getvalue(), r'topic\.dita: error: unsupported outputclass "snippet"')
+        self.assertRegex(str(cm.exception), r'topic\.dita: error: unsupported outputclass "snippet"')
