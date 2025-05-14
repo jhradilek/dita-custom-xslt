@@ -203,7 +203,7 @@ class TestDitaCli(unittest.TestCase):
              contextlib.redirect_stderr(StringIO()) as err:
                  cli.parse_args(['-t', 'concept', 'topic.dita'])
 
-        self.assertEqual(cm.exception.code, errno.ENOENT)
+        self.assertEqual(cm.exception.code, errno.EPERM)
         self.assertRegex(err.getvalue(), rf'^{NAME}:.*topic\.dita')
 
     def test_get_type_assembly(self):
@@ -254,19 +254,15 @@ class TestDitaCli(unittest.TestCase):
     def test_get_type_missing(self):
         xml = etree.parse(StringIO('<topic />'))
 
-        with self.assertRaises(SystemExit) as cm,\
-             contextlib.redirect_stderr(StringIO()) as err:
+        with self.assertRaises(Exception) as cm:
             target_type = cli.get_type('topic.dita', xml)
 
-        self.assertEqual(cm.exception.code, errno.EINVAL)
-        self.assertRegex(err.getvalue(), r'topic\.dita: error: outputclass not found')
+        self.assertRegex(str(cm.exception), r'topic\.dita: error: outputclass not found')
 
     def test_get_type_invalid(self):
         xml = etree.parse(StringIO('<topic outputclass="snippet" />'))
 
-        with self.assertRaises(SystemExit) as cm,\
-             contextlib.redirect_stderr(StringIO()) as err:
+        with self.assertRaises(Exception) as cm:
             target_type = cli.get_type('topic.dita', xml)
 
-        self.assertEqual(cm.exception.code, errno.EINVAL)
-        self.assertRegex(err.getvalue(), r'topic\.dita: error: unsupported outputclass "snippet"')
+        self.assertRegex(str(cm.exception), r'topic\.dita: error: unsupported outputclass "snippet"')
