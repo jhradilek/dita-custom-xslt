@@ -64,6 +64,9 @@
   <!-- Prevent duplication of the abstract paragraph (used for shortdesc): -->
   <xsl:template match="//body/p[1][@outputclass='abstract']" />
 
+  <!-- Prevent duplication of the example section: -->
+  <xsl:template match="//body/example" />
+
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
     <xsl:copy>
@@ -118,6 +121,11 @@
       <xsl:call-template name="compose-element">
         <xsl:with-param name="name" select="'tasktroubleshooting'" />
         <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Troubleshooting' or b='Troubleshooting step' or b='Troubleshooting steps']]" />
+      </xsl:call-template>
+      <!-- Compose the example element: -->
+      <xsl:call-template name="compose-element">
+        <xsl:with-param name="name" select="'example'" />
+        <xsl:with-param name="contents" select="//body/example[1]/*|//body/example[1]/@*" />
       </xsl:call-template>
       <!-- Compose the postreq element: -->
       <xsl:call-template name="compose-element">
