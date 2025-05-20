@@ -58,6 +58,30 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
 
+    def test_multiple_examples(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <example>
+                    <p>An example</p>
+                </example>
+                <example>
+                    <p>Unsupported content</p>
+                </example>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertIsNotNone(err.last_error)
+        self.assertEqual(err.last_error.message, "WARNING: Extra example elements found, skipping...")
+
+        self.assertFalse(task.xpath('boolean(//example[2])'))
+        self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
+
     def test_nonlist_elements_in_procedure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
@@ -308,6 +332,9 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
                 <ol>
                     <li>Troubleshooting step</li>
                 </ol>
+                <example>
+                    <p>Example</p>
+                </example>
                 <p outputclass="title"><b>Next step</b></p>
                 <ul>
                     <li>Next step</li>
@@ -333,6 +360,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/result/ul/li[text()="Verification step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[text()="Troubleshooting step"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/example/p[text()="Example"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/postreq/ul/li[text()="Next step"])'))
 
     def test_prerequisite(self):
@@ -414,6 +442,24 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
 
         self.assertTrue(task.xpath('boolean(/task/taskbody/tasktroubleshooting/ol/li[text()="Troubleshooting step"])'))
+
+    def test_example(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <example id="example-id">
+                    <title>Example title</title>
+                    <p>Example paragraph</p>
+                </example>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/taskbody/example[@id="example-id"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/example/title[text()="Example title"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/example/p[text()="Example paragraph"])'))
 
     def test_next_steps(self):
         xml = etree.parse(StringIO('''\
