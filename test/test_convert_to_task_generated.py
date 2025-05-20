@@ -447,6 +447,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
             <body>
+                <p outputclass="title"><b>Troubleshooting steps</b></p>
                 <example id="example-id">
                     <title>Example title</title>
                     <p>Example paragraph</p>
@@ -460,6 +461,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/taskbody/example[@id="example-id"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/example/title[text()="Example title"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/example/p[text()="Example paragraph"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/tasktroubleshooting/example)'))
 
     def test_next_steps(self):
         xml = etree.parse(StringIO('''\
