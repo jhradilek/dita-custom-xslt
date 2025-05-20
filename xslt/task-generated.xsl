@@ -64,6 +64,14 @@
   <!-- Prevent duplication of the abstract paragraph (used for shortdesc): -->
   <xsl:template match="//body/p[1][@outputclass='abstract']" />
 
+  <!-- Prevent duplication of the example section: -->
+  <xsl:template match="//body/example" />
+
+  <!-- Issue a warning if the converted file contains multiple examples: -->
+  <xsl:template match="//body/example[2]">
+    <xsl:message terminate="no">WARNING: Extra example elements found, skipping...</xsl:message>
+  </xsl:template>
+
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
     <xsl:copy>
@@ -119,6 +127,11 @@
         <xsl:with-param name="name" select="'tasktroubleshooting'" />
         <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Troubleshooting' or b='Troubleshooting step' or b='Troubleshooting steps']]" />
       </xsl:call-template>
+      <!-- Compose the example element: -->
+      <xsl:call-template name="compose-element">
+        <xsl:with-param name="name" select="'example'" />
+        <xsl:with-param name="contents" select="//body/example[1]/*|//body/example[1]/@*" />
+      </xsl:call-template>
       <!-- Compose the postreq element: -->
       <xsl:call-template name="compose-element">
         <xsl:with-param name="name" select="'postreq'" />
@@ -130,7 +143,7 @@
         <xsl:with-param name="contents" select="*[not(@outputclass='title') and preceding-sibling::p[@outputclass='title'][1][b='Additional resources']]" />
     </xsl:call-template>
 
-    <!-- Issue a warning if the converted file contains an unsupported title:  -->
+    <!-- Issue a warning if the converted file contains an unsupported title: -->
     <xsl:for-each select="p[@outputclass='title']/b/text()">
       <xsl:variable name="titles" select="'|Prerequisite|Prerequisites|Procedure|Verification|Result|Results|Troubleshooting|Troubleshooting step|Troubleshooting steps|Next step|Next steps|Additional resources|'" />
       <xsl:if test="not(contains($titles, concat('|', ., '|')))">
