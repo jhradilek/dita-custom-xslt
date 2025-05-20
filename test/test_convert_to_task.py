@@ -35,6 +35,26 @@ class TestDitaConvertToTask(unittest.TestCase):
 
         self.assertEqual(str(cm.exception), 'ERROR: Section not allowed in a DITA task')
 
+    def test_multiple_examples_not_permitted(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <example>
+                    <p>A supported example.</p>
+                </example>
+                <example>
+                    <p>An unsupported example.</p>
+                </example>
+            </body>
+        </topic>
+        '''))
+
+        with self.assertRaises(etree.XSLTApplyError) as cm:
+            transform.to_task(xml)
+
+        self.assertEqual(str(cm.exception), 'ERROR: Multiple examples not allowed in a DITA task')
+
     def test_task_structure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
@@ -45,6 +65,10 @@ class TestDitaConvertToTask(unittest.TestCase):
                     <li>Task step</li>
                 </ol>
                 <p>Topic summary</p>
+                <example>
+                    <p>Example</p>
+                </example>
+                <p>Next step</p>
             </body>
         </topic>
         '''))
@@ -62,6 +86,73 @@ class TestDitaConvertToTask(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/result/p[text()="Topic summary"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/example/p[text()="Example"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/postreq/p[text()="Next step"])'))
+
+    def test_context_without_steps(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <example>
+                    <p>Example</p>
+                </example>
+                <p>Next step</p>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/context/p[text()="Next step"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/example/p[text()="Example"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/steps)'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/result)'))
+
+    def test_context_without_example(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <p>Next step</p>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Next step"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/steps)'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/result)'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/example)'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/postreq)'))
+
+    def test_result_without_example(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <ol>
+                    <li>Task step</li>
+                </ol>
+                <p>Topic summary</p>
+                <p>Next step</p>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task(xml)
+
+        self.assertFalse(task.xpath('boolean(/task/taskbody/result/p[text()="Topic introduction"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/result/p[text()="Topic summary"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/result/p[text()="Next step"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/example)'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/postreq)'))
 
     def test_task_step_info(self):
         xml = etree.parse(StringIO('''\

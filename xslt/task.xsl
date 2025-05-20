@@ -9,10 +9,14 @@
     1. Any contents preceding the first ordered list is  considered part of
        the <context> element.
     2. The first ordered list is transformed into <steps>.
-    3. Any contents following the first  ordered list is considered part of
-       the <result> element.
+    3. Any contents between the first ordered list and the first example is
+       considered part of the <result> element.
+    4. The first <example> is used as is.
+    5. Any contents following the first example is  considered  part of the
+       <postreq> element.
 
-  Sections are not permitted and will result in an error.
+  Sections are not permitted and will result in an error. Multiple examples
+  are not permitted and will result in an error.
 
   Usage: xsltproc ––novalid task.xsl YOUR_TOPIC.dita
 
@@ -57,6 +61,11 @@
     <xsl:message terminate="yes">ERROR: Section not allowed in a DITA task</xsl:message>
   </xsl:template>
 
+  <!-- Report an error if the converted file contains multiple examples: -->
+  <xsl:template match="//body/example[2]">
+    <xsl:message terminate="yes">ERROR: Multiple examples not allowed in a DITA task</xsl:message>
+  </xsl:template>
+
   <!-- Define a list of valid cmd element children: -->
   <xsl:variable name="cmd-children" select="' abbreviated-form apiname b boolean cite cmdname codeph data data-about draft-comment equation-inline filepath fn foreign i image indexterm indextermref keyword line-through markupname mathml menucascade msgnum msgph numcharref option overline parameterentity parmname ph q required-cleanup sort-as state sub sup svg-container synph systemoutput term text textentity tm tt u uicontrol unknown userinput varname wintitle xmlatt xmlelement xmlnsname xmlpi xref '" />
 
@@ -78,14 +87,23 @@
   <xsl:template match="body">
     <xsl:element name="taskbody">
       <xsl:variable name="steps" select="ol[1]" />
+      <xsl:variable name="example" select="example[1]" />
       <xsl:call-template name="context">
         <xsl:with-param name="steps" select="$steps" />
+        <xsl:with-param name="example" select="$example" />
       </xsl:call-template>
       <xsl:call-template name="steps">
         <xsl:with-param name="steps" select="$steps" />
       </xsl:call-template>
       <xsl:call-template name="result">
         <xsl:with-param name="steps" select="$steps" />
+        <xsl:with-param name="example" select="$example" />
+      </xsl:call-template>
+      <xsl:call-template name="example">
+        <xsl:with-param name="example" select="$example" />
+      </xsl:call-template>
+      <xsl:call-template name="postreq">
+        <xsl:with-param name="example" select="$example" />
       </xsl:call-template>
     </xsl:element>
   </xsl:template>
@@ -93,11 +111,18 @@
   <!-- Compose the context element: -->
   <xsl:template name="context">
     <xsl:param name="steps" />
+    <xsl:param name="example" />
     <xsl:choose>
       <xsl:when test="$steps">
         <xsl:call-template name="compose-element">
           <xsl:with-param name="name" select="'context'" />
           <xsl:with-param name="contents" select="ol[1]/preceding-sibling::*" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="$example">
+        <xsl:call-template name="compose-element">
+          <xsl:with-param name="name" select="'context'" />
+          <xsl:with-param name="contents" select="example[1]/preceding-sibling::*" />
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -126,10 +151,43 @@
   <!-- Compose the result element: -->
   <xsl:template name="result">
     <xsl:param name="steps" />
+    <xsl:param name="example" />
     <xsl:if test="$steps">
+      <xsl:choose>
+        <xsl:when test="$example">
+          <xsl:call-template name="compose-element">
+            <xsl:with-param name="name" select="'result'" />
+            <xsl:with-param name="contents" select="*[not(self::example) and preceding-sibling::ol[1] and following-sibling::example[1]]" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="compose-element">
+            <xsl:with-param name="name" select="'result'" />
+            <xsl:with-param name="contents" select="ol[1]/following-sibling::*" />
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+
+  <!-- Compose the example element: -->
+  <xsl:template name="example">
+    <xsl:param name="example" />
+    <xsl:if test="$example">
       <xsl:call-template name="compose-element">
-        <xsl:with-param name="name" select="'result'" />
-        <xsl:with-param name="contents" select="ol[1]/following-sibling::*" />
+        <xsl:with-param name="name" select="'example'" />
+        <xsl:with-param name="contents" select="example[1]/*|example[1]/@*" />
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+
+  <!-- Compose the postreq element: -->
+  <xsl:template name="postreq">
+    <xsl:variable name="postreq" select="example[1]/following-sibling::*" />
+    <xsl:if test="$postreq">
+      <xsl:call-template name="compose-element">
+        <xsl:with-param name="name" select="'postreq'" />
+        <xsl:with-param name="contents" select="$postreq" />
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
