@@ -21,7 +21,11 @@
 # ARISING FROM,  OUT OF OR IN CONNECTION WITH  THE SOFTWARE  OR  THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
+import sys
 from . import cli
 
 if __name__ == '__main__':
-    cli.parse_args()
+    try:
+        cli.parse_args()
+    except KeyboardInterrupt:
+        sys.exit(130)
