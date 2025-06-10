@@ -167,6 +167,9 @@
     <xsl:param name="contents" />
     <xsl:variable name="list" select="$contents[self::ol or self::ul][1]" />
     <xsl:if test="$contents">
+      <xsl:if test="$contents[self::section]">
+        <xsl:message terminate="yes">ERROR: Section not allowed in a DITA task</xsl:message>
+      </xsl:if>
       <xsl:if test="$contents[not(self::ol or self::ul)]">
         <xsl:message terminate="no">WARNING: Non-list elements found in steps, skipping...</xsl:message>
       </xsl:if>

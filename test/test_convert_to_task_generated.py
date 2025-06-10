@@ -35,6 +35,28 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
 
         self.assertEqual(str(cm.exception), 'ERROR: Section not allowed in a DITA task')
 
+    def test_section_in_procedure(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="title"><b>Procedure</b></p>
+                <ol>
+                    <li>A step.</li>
+                </ol>
+                <section>
+                    <title>Section title</title>
+                    <p>Section body</p>
+                </section>
+            </body>
+        </topic>
+        '''))
+
+        with self.assertRaises(etree.XSLTApplyError) as cm:
+            transform.to_task_generated(xml)
+
+        self.assertEqual(str(cm.exception), 'ERROR: Section not allowed in a DITA task')
+
     def test_unsupported_titles(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
