@@ -129,6 +129,28 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
         self.assertTrue(task.xpath('boolean(/task/taskbody/steps/step/cmd[text()="Task step"])'))
 
+    def test_example_after_procedure(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="title"><b>Procedure</b></p>
+                <ol>
+                    <li>A step.</li>
+                </ol>
+                <example>
+                    <title>Example title</title>
+                    <p>An example</p>
+                </example>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+        err  = transform.to_task_generated.error_log
+
+        self.assertEqual(len(err), 0)
+
     def test_extra_list_elements_in_procedure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">

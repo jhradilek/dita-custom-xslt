@@ -170,7 +170,7 @@
       <xsl:if test="$contents[self::section]">
         <xsl:message terminate="yes">ERROR: Section not allowed in a DITA task</xsl:message>
       </xsl:if>
-      <xsl:if test="$contents[not(self::ol or self::ul)]">
+      <xsl:if test="$contents[not(self::ol or self::ul or self::example)]">
         <xsl:message terminate="no">WARNING: Non-list elements found in steps, skipping...</xsl:message>
       </xsl:if>
       <xsl:if test="$contents[self::ol or self::ul][2]">
