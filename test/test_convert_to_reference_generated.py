@@ -39,7 +39,7 @@ class TestDitaConvertToReference(unittest.TestCase):
         reference = transform.to_reference_generated(xml)
         err = transform.to_reference_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Nested sections not allowed in DITA, skipping...')
 
         self.assertFalse(reference.xpath('boolean(//section/section)'))
@@ -65,7 +65,7 @@ class TestDitaConvertToReference(unittest.TestCase):
         reference = transform.to_reference_generated(xml)
         err  = transform.to_reference_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Non-list elements found in related links, skipping...')
 
         self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -92,7 +92,7 @@ class TestDitaConvertToReference(unittest.TestCase):
         reference = transform.to_reference_generated(xml)
         err  = transform.to_reference_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Extra list elements found in related-links, skipping...')
 
         self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -114,7 +114,7 @@ class TestDitaConvertToReference(unittest.TestCase):
         reference = transform.to_reference_generated(xml)
         err  = transform.to_reference_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertNotEqual(len(err), 0)
         self.assertIn('WARNING: No list elements found in related links', [m.message for m in err])
 
         self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -137,7 +137,7 @@ class TestDitaConvertToReference(unittest.TestCase):
         reference = transform.to_reference_generated(xml)
         err  = transform.to_reference_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
         self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -160,7 +160,7 @@ class TestDitaConvertToReference(unittest.TestCase):
         reference = transform.to_reference_generated(xml)
         err  = transform.to_reference_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
         self.assertFalse(reference.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -183,7 +183,7 @@ class TestDitaConvertToReference(unittest.TestCase):
         reference = transform.to_reference_generated(xml)
         err  = transform.to_reference_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
         self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))

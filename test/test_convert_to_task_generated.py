@@ -72,7 +72,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, "WARNING: Unsupported title 'Unsupported title' found, skipping...")
 
         self.assertFalse(task.xpath('boolean(//p[@outputclass="title"])'))
@@ -98,7 +98,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, "WARNING: Extra example elements found, skipping...")
 
         self.assertFalse(task.xpath('boolean(//example[2])'))
@@ -122,7 +122,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Non-list elements found in steps, skipping...')
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -171,7 +171,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Extra list elements found in steps, skipping...')
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -193,7 +193,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertNotEqual(len(err), 0)
         self.assertIn('WARNING: No list elements found in steps', [m.message for m in err])
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -217,7 +217,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Non-list elements found in related links, skipping...')
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -244,7 +244,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Extra list elements found in related-links, skipping...')
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -266,7 +266,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertNotEqual(len(err), 0)
         self.assertIn('WARNING: No list elements found in related links', [m.message for m in err])
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -289,7 +289,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -312,7 +312,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
         self.assertFalse(task.xpath('boolean(//*[text()="Unsupported content"])'))
@@ -335,7 +335,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
         err  = transform.to_task_generated.error_log
 
-        self.assertIsNotNone(err.last_error)
+        self.assertEqual(len(err), 1)
         self.assertEqual(err.last_error.message, 'WARNING: Unexpected content found in related-links, skipping...')
 
         self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
