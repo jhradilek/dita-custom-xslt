@@ -72,11 +72,6 @@
     <xsl:message terminate="no">WARNING: Extra example elements found, skipping...</xsl:message>
   </xsl:template>
 
-  <!-- Issue a warning it a nested example has a title: -->
-  <xsl:template match="//ol//example/title">
-    <xsl:message terminate="no">WARNING: Title not allowed in DITA stepxmp, skipping...</xsl:message>
-  </xsl:template>
-
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
     <xsl:copy>
@@ -183,6 +178,9 @@
       </xsl:if>
       <xsl:if test="not($list)">
         <xsl:message terminate="no">WARNING: No list elements found in steps</xsl:message>
+      </xsl:if>
+      <xsl:if test="$contents//example/title">
+        <xsl:message terminate="no">WARNING: Title found in stepxmp, skipping...</xsl:message>
       </xsl:if>
       <xsl:if test="$list">
         <xsl:variable name="name">
@@ -329,7 +327,7 @@
       <xsl:variable name="current-position" select="position()" />
       <xsl:call-template name="compose-element">
         <xsl:with-param name="name" select="'stepxmp'" />
-        <xsl:with-param name="contents" select="text()|*" />
+        <xsl:with-param name="contents" select="text()|*[not(self::title)]" />
       </xsl:call-template>
       <xsl:choose>
         <xsl:when test="following-sibling::example">
