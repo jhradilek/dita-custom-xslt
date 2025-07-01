@@ -694,12 +694,16 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
                         <codeblock>Step code</codeblock>
                         <p>Step explanation</p>
                         <ol>
-                            <li>First substeps</li>
+                            <li>
+                                <p>First substeps</p>
+                                <example>First substep example</example>
+                            </li>
                         </ol>
                         <p>Additional information</p>
                         <ol>
                             <li>Second substeps</li>
                         </ol>
+                        <example>Step example</example>
                         <p>Step summary</p>
                     </li>
                 </ol>
@@ -713,8 +717,10 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/info/codeblock[text()="Step code"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[1]/p[text()="Step explanation"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[1]/substep/cmd[text()="First substeps"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps[1]/substep/stepxmp[text()="First substep example"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[2]/p[text()="Additional information"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[2]/substep/cmd[text()="Second substeps"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/stepxmp[text()="Step example"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[3]/p[text()="Step summary"])'))
 
     def test_link_without_text(self):
