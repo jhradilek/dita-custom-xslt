@@ -179,6 +179,9 @@
       <xsl:if test="not($list)">
         <xsl:message terminate="no">WARNING: No list elements found in steps</xsl:message>
       </xsl:if>
+      <xsl:if test="$contents//example/title">
+        <xsl:message terminate="no">WARNING: Title found in stepxmp, skipping...</xsl:message>
+      </xsl:if>
       <xsl:if test="$list">
         <xsl:variable name="name">
           <xsl:choose>
@@ -254,8 +257,7 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="compose-element">
-          <xsl:with-param name="name" select="'info'" />
+        <xsl:call-template name="info-stepxmp">
           <xsl:with-param name="contents" select="$contents" />
         </xsl:call-template>
       </xsl:otherwise>
@@ -268,14 +270,12 @@
     <xsl:variable name="substeps-count" select="count($contents[self::ol])" />
     <xsl:variable name="first-info" select="$contents[following-sibling::ol[$substeps-count]]" />
     <xsl:if test="$substeps-count = 0">
-      <xsl:call-template name="compose-element">
-        <xsl:with-param name="name" select="'info'" />
+      <xsl:call-template name="info-stepxmp">
         <xsl:with-param name="contents" select="$contents" />
       </xsl:call-template>
     </xsl:if>
     <xsl:if test="$first-info">
-      <xsl:call-template name="compose-element">
-        <xsl:with-param name="name" select="'info'" />
+      <xsl:call-template name="info-stepxmp">
         <xsl:with-param name="contents" select="$first-info" />
       </xsl:call-template>
     </xsl:if>
@@ -290,13 +290,54 @@
       </xsl:element>
       <xsl:choose>
         <xsl:when test="following-sibling::ol">
-          <xsl:call-template name="compose-element">
-            <xsl:with-param name="name" select="'info'" />
+          <xsl:call-template name="info-stepxmp">
             <xsl:with-param name="contents" select="following-sibling::*[following-sibling::ol[$substeps-count - $current-position]]" />
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:variable name="last-info" select="following-sibling::*|following-sibling::text()" />
+          <xsl:if test="$last-info">
+            <xsl:call-template name="info-stepxmp">
+              <xsl:with-param name="contents" select="$last-info" />
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
+  </xsl:template>
+
+  <!-- Compose alternating info/stepxmp elements: -->
+  <xsl:template name="info-stepxmp">
+    <xsl:param name="contents" />
+    <xsl:variable name="xmp-count" select="count($contents[self::example])" />
+    <xsl:variable name="first-info" select="$contents[following-sibling::example[$xmp-count]]" />
+    <xsl:if test="$xmp-count = 0">
+      <xsl:call-template name="compose-element">
+        <xsl:with-param name="name" select="'info'" />
+        <xsl:with-param name="contents" select="$contents" />
+      </xsl:call-template>
+    </xsl:if>
+    <xsl:if test="$first-info">
+      <xsl:call-template name="compose-element">
+        <xsl:with-param name="name" select="'info'" />
+        <xsl:with-param name="contents" select="$first-info" />
+      </xsl:call-template>
+    </xsl:if>
+    <xsl:for-each select="$contents[self::example]">
+      <xsl:variable name="current-position" select="position()" />
+      <xsl:call-template name="compose-element">
+        <xsl:with-param name="name" select="'stepxmp'" />
+        <xsl:with-param name="contents" select="text()|*[not(self::title)]" />
+      </xsl:call-template>
+      <xsl:choose>
+        <xsl:when test="following-sibling::example">
+          <xsl:call-template name="compose-element">
+            <xsl:with-param name="name" select="'info'" />
+            <xsl:with-param name="contents" select="following-sibling::*[following-sibling::example[$xmp-count - $current-position]]" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:variable name="last-info" select="following-sibling::*[not(self::ol)]|following-sibling::text()" />
           <xsl:if test="$last-info">
             <xsl:call-template name="compose-element">
               <xsl:with-param name="name" select="'info'" />

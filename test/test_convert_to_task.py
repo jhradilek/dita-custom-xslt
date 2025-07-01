@@ -176,6 +176,61 @@ class TestDitaConvertToTask(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/info/codeblock[text()="Step code"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info/p[text()="Step explanation"])'))
 
+    def test_task_stepxmp(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <ol>
+                    <li>
+                        <p>Step introduction</p>
+                        <codeblock>Step code</codeblock>
+                        <example>Step example</example>
+                    </li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task(xml)
+
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd[text()="Step introduction"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/info/codeblock[text()="Step code"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/stepxmp[text()="Step example"])'))
+
+    def test_alternating_stepxmp(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <ol>
+                    <li>
+                        <p>Step introduction</p>
+                        <codeblock>Step code</codeblock>
+                        <p>Step explanation</p>
+                        <example>
+                            <p>Example introduction</p>
+                            <codeblock>Example code</codeblock>
+                        </example>
+                        <p>Additional information</p>
+                        <example>Additional example</example>
+                        <p>Step summary</p>
+                    </li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task(xml)
+
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd[text()="Step introduction"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/info[1]/codeblock[text()="Step code"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/stepxmp[1]/p[text()="Example introduction"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/stepxmp[1]/codeblock[text()="Example code"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/info[2]/p[text()="Additional information"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/stepxmp[2][text()="Additional example"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/info[3]/p[text()="Step summary"])'))
+
     def test_task_substeps(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
@@ -209,18 +264,23 @@ class TestDitaConvertToTask(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
+                <p outputclass="title"><b>Procedure</b></p>
                 <ol>
                     <li>
                         <p>Step introduction</p>
                         <codeblock>Step code</codeblock>
                         <p>Step explanation</p>
                         <ol>
-                            <li>First substeps</li>
+                            <li>
+                                <p>First substeps</p>
+                                <example>First substep example</example>
+                            </li>
                         </ol>
                         <p>Additional information</p>
                         <ol>
                             <li>Second substeps</li>
                         </ol>
+                        <example>Step example</example>
                         <p>Step summary</p>
                     </li>
                 </ol>
@@ -234,6 +294,8 @@ class TestDitaConvertToTask(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/info/codeblock[text()="Step code"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[1]/p[text()="Step explanation"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[1]/substep/cmd[text()="First substeps"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps[1]/substep/stepxmp[text()="First substep example"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[2]/p[text()="Additional information"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[2]/substep/cmd[text()="Second substeps"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/stepxmp[text()="Step example"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[3]/p[text()="Step summary"])'))
