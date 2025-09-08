@@ -7,7 +7,7 @@
   monolithic  DITA  topic  generated  with   the  asciidoctor-dita-topic[1]
   plug-in.
 
-  Usage: xsltproc ––novalid topic.xsl YOUR_TOPIC.dita
+  Usage: xsltproc ––novalid single-topic.xsl YOUR_TOPIC.dita
 
   [1] https://github.com/jhradilek/asciidoctor-dita-topic
 
@@ -35,7 +35,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <!-- Compose the XML and DOCTYPE declarations: -->
-  <xsl:output encoding="utf-8" method="xml" doctype-system="reference.dtd" doctype-public="-//OASIS//DTD DITA Reference//EN" />
+  <xsl:output encoding="utf-8" method="xml" doctype-system="topic.dtd" doctype-public="-//OASIS//DTD DITA Topic//EN" />
 
   <!-- Format the XML output: -->
   <xsl:output indent="yes" />

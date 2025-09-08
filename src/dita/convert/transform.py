@@ -27,7 +27,8 @@ from .xslt import *
 # Define which symbols are to be exported:
 __all__ = [
     'to_concept', 'to_reference', 'to_task',
-    'to_concept_generated', 'to_reference_generated', 'to_task_generated'
+    'to_concept_generated', 'to_reference_generated', 'to_task_generated',
+    'to_single_topic'
 ]
 
 # Expose the XSLT transformers:
@@ -37,3 +38,4 @@ to_task                = etree.XSLT(etree.parse(task))
 to_concept_generated   = etree.XSLT(etree.parse(concept_generated))
 to_reference_generated = etree.XSLT(etree.parse(reference_generated))
 to_task_generated      = etree.XSLT(etree.parse(task_generated))
+to_single_topic        = etree.XSLT(etree.parse(single_topic))

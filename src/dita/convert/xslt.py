@@ -26,7 +26,8 @@ from pathlib import Path
 # Define which symbols are to be exported:
 __all__ = [
     'concept', 'reference', 'task',
-    'concept_generated', 'reference_generated', 'task_generated'
+    'concept_generated', 'reference_generated', 'task_generated',
+    'single_topic'
 ]
 
 # XSLT file paths:
@@ -36,3 +37,4 @@ task                = Path(__file__).parent / 'xslt/task.xsl'
 concept_generated   = Path(__file__).parent / 'xslt/concept-generated.xsl'
 reference_generated = Path(__file__).parent / 'xslt/reference-generated.xsl'
 task_generated      = Path(__file__).parent / 'xslt/task-generated.xsl'
+single_topic        = Path(__file__).parent / 'xslt/single-topic.xsl'
