@@ -2,22 +2,28 @@
 
 **dita-custom-xslt** is a set of XSLT stylesheets that convert a generic DITA topic to a specialized DITA concept, reference, or task. **dita-convert** is a Python 3 package that provides a convenient access to these stylesheets and a command-line utility to perform the conversions.
 
-In combination with [asciidoctor-dita-vale](https://github.com/jhradilek/asciidoctor-dita-vale) and [asciidoctor-dita-topic](https://github.com/jhradilek/asciidoctor-dita-topic), this project can be used to rapidly convert AsciiDoc content to DITA:
+In combination with [asciidoctor-dita-vale](https://github.com/jhradilek/asciidoctor-dita-vale), [asciidoctor-dita-topic](https://github.com/jhradilek/asciidoctor-dita-topic), and [dita-cleanup](https://github.com/jhradilek/fix-dita-links/), this project can be used to rapidly convert AsciiDoc content to DITA:
 
 1.  Identify incompatible markup in the AsciiDoc source file:
 
     ```console
-    $ vale source_file.adoc
+    vale source_file.adoc
     ```
 2.  Convert the AsciiDoc file to a generic DITA topic:
 
     ```console
-    $ asciidoctor -r dita-topic -b dita-topic source_file.adoc
+    asciidoctor -r dita-topic -b dita-topic -S secure source_file.adoc
     ```
 3.  Convert the generic DITA topic to a specialized DITA concept, reference, or task:
 
     ```console
-    $ dita-convert -gt task source_file.dita
+    dita-convert -g source_file.dita -o output_file.dita
+    ```
+
+4.  Clean up the resulting DITA file:
+
+    ```console
+    dita-cleanup -iI -D ../images -X . output_file.dita
     ```
 
 ## Installation
