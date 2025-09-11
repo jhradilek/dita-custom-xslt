@@ -6,7 +6,7 @@ from src.dita.convert import transform
 class TestDitaConvertToSingleTopic(unittest.TestCase):
     def test_document_is_topic(self):
         xml = etree.parse(StringIO('''\
-        <task id="example-concept">
+        <task id="example-task">
             <title>Task title</title>
         </task>
         '''))
