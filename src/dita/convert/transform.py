@@ -28,7 +28,7 @@ from .xslt import *
 __all__ = [
     'to_concept', 'to_reference', 'to_task',
     'to_concept_generated', 'to_reference_generated', 'to_task_generated',
-    'to_single_topic'
+    'to_single_topic', 'to_single_map'
 ]
 
 # Expose the XSLT transformers:
@@ -39,3 +39,4 @@ to_concept_generated   = etree.XSLT(etree.parse(concept_generated))
 to_reference_generated = etree.XSLT(etree.parse(reference_generated))
 to_task_generated      = etree.XSLT(etree.parse(task_generated))
 to_single_topic        = etree.XSLT(etree.parse(single_topic))
+to_single_map          = etree.XSLT(etree.parse(single_map))

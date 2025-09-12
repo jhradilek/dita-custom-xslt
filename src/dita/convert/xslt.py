@@ -27,7 +27,7 @@ from pathlib import Path
 __all__ = [
     'concept', 'reference', 'task',
     'concept_generated', 'reference_generated', 'task_generated',
-    'single_topic'
+    'single_topic', 'single_map'
 ]
 
 # XSLT file paths:
@@ -38,3 +38,4 @@ concept_generated   = Path(__file__).parent / 'xslt/concept-generated.xsl'
 reference_generated = Path(__file__).parent / 'xslt/reference-generated.xsl'
 task_generated      = Path(__file__).parent / 'xslt/task-generated.xsl'
 single_topic        = Path(__file__).parent / 'xslt/single-topic.xsl'
+single_map          = Path(__file__).parent / 'xslt/single-map.xsl'
