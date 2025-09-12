@@ -155,7 +155,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     args = parser.parse_args(argv)
 
     # Recognize the instruction to read from standard input:
-    if args.files == '-':
+    if args.files == ['-']:
         args.files = [sys.stdin]
 
     # Recognize the instruction to write to standard output:

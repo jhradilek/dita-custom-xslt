@@ -2,6 +2,7 @@ import unittest
 import contextlib
 import errno
 import os
+import sys
 from io import StringIO
 from lxml import etree
 from unittest.mock import mock_open, patch
@@ -239,13 +240,25 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(cm.exception.code, errno.ENOENT)
         self.assertRegex(err.getvalue(), r'error:.*not allowed with argument')
 
-    def test_invalid_file(self):
+    def test_invalid_input_file(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stderr(StringIO()) as err:
                  cli.run(['-t', 'concept', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, errno.EPERM)
         self.assertRegex(err.getvalue(), rf'^{NAME}:.*topic\.dita')
+
+    def test_stdin_as_input_file(self):
+        args = cli.parse_args(['-t', 'concept', '-'])
+        self.assertEqual(args.files, [sys.stdin])
+
+    def test_multiple_input_files(self):
+        args = cli.parse_args(['-t', 'concept', '-', 'test.dita'])
+        self.assertEqual(args.files, ['-', 'test.dita'])
+
+    def test_stdout_as_output_file(self):
+        args = cli.parse_args(['-t', 'concept', '-o', '-'])
+        self.assertEqual(args.output, sys.stdout)
 
     def test_get_type_assembly(self):
         xml = etree.parse(StringIO('<topic outputclass="assembly" />'))
