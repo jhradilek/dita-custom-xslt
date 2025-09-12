@@ -256,6 +256,10 @@ class TestDitaCli(unittest.TestCase):
         args = cli.parse_args(['-t', 'concept', '-', 'test.dita'])
         self.assertEqual(args.files, ['-', 'test.dita'])
 
+    def test_no_input_files(self):
+        args = cli.parse_args(['-t', 'concept'])
+        self.assertEqual(args.files, [sys.stdin])
+
     def test_stdout_as_output_file(self):
         args = cli.parse_args(['-t', 'concept', '-o', '-'])
         self.assertEqual(args.output, sys.stdout)

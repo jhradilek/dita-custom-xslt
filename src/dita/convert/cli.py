@@ -32,6 +32,9 @@ from .transform import to_concept, to_reference, to_task, \
                        to_concept_generated, to_reference_generated, \
                        to_task_generated
 
+# Define which symbols are to be exported:
+__all__ = ['convert', 'run']
+
 # Print a message to standard error output and terminate the script:
 def exit_with_error(error_message: str, exit_status: int = errno.EPERM) -> None:
     # Print the supplied message to standard error output:
@@ -147,7 +150,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     # Add supported command-line arguments:
     parser.add_argument('files', metavar='FILE',
-        default='-',
+        default=['-'],
         nargs='*',
         help='specify the DITA topic files to convert')
 
@@ -162,8 +165,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     if args.output == '-':
         args.output = sys.stdout
 
+    # Return the parsed arguments:
     return args
 
+# Convert individual topics:
 def convert_topics(args: argparse.Namespace) -> int:
     # Set the initial exit code:
     exit_code = 0
@@ -228,6 +233,7 @@ def convert_topics(args: argparse.Namespace) -> int:
     # Return the exit code:
     return exit_code
 
+# The main entry point:
 def run(argv: list[str] | None = None) -> None:
     try:
         args = parse_args(argv)
