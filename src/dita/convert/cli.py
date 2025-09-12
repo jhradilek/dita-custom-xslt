@@ -73,17 +73,11 @@ def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
 # Convert the selected file:
 def convert(source_file: str, target_type: str | None = None, generated: bool = False) -> str:
     # Parse the source file:
-    try:
-        source_xml = etree.parse(source_file)
-    except etree.XMLSyntaxError as message:
-        raise Exception(f'{source_file}: error: {message}')
+    source_xml = etree.parse(source_file)
 
     # Determine the target type from the source file if not provided:
     if target_type is None:
-        try:
-            target_type = get_type(source_file, source_xml)
-        except Exception as message:
-            raise Exception(message)
+        target_type = get_type(source_file, source_xml)
 
     # Select the appropriate XSLT transformer:
     transform = {
@@ -100,10 +94,7 @@ def convert(source_file: str, target_type: str | None = None, generated: bool = 
     }[generated][target_type]
 
     # Run the transformation:
-    try:
-        xml = transform(source_xml)
-    except etree.XSLTApplyError as message:
-        raise Exception(f'{source_file}: {message}')
+    xml = transform(source_xml)
 
     # Print any warning messages to standard error output:
     if hasattr(transform, 'error_log'):
@@ -114,7 +105,7 @@ def convert(source_file: str, target_type: str | None = None, generated: bool = 
     return str(xml)
 
 # Parse supplied command-line options:
-def parse_args(argv: list[str] | None = None) -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     # Configure the option parser:
     parser = argparse.ArgumentParser(prog=NAME,
         description=DESCRIPTION,
@@ -163,9 +154,6 @@ def parse_args(argv: list[str] | None = None) -> None:
     # Parse the command-line options:
     args = parser.parse_args(argv)
 
-    # Set the initial exit code:
-    exit_code = 0
-
     # Recognize the instruction to read from standard input:
     if args.files == '-':
         args.files = [sys.stdin]
@@ -173,6 +161,12 @@ def parse_args(argv: list[str] | None = None) -> None:
     # Recognize the instruction to write to standard output:
     if args.output == '-':
         args.output = sys.stdout
+
+    return args
+
+def convert_topics(args: argparse.Namespace) -> int:
+    # Set the initial exit code:
+    exit_code = 0
 
     # Create the target directory:
     if args.directory:
@@ -188,14 +182,19 @@ def parse_args(argv: list[str] | None = None) -> None:
         try:
             # Convert the selected file:
             xml = convert(input_file, args.type, args.generated)
+        except (etree.XMLSyntaxError, etree.XSLTApplyError) as message:
+            # Report the error:
+            warn(f'{input_file}: error: {message}')
+
+            # Do not proceed further with this file:
+            exit_code = errno.EPERM
+            continue
         except (OSError, Exception) as message:
             # Report the error:
             warn(str(message))
 
-            # Update the exit code:
-            exit_code = errno.EPERM
-
             # Do not proceed further with this file:
+            exit_code = errno.EPERM
             continue
 
         # Determine whether to write to standard output:
@@ -219,12 +218,21 @@ def parse_args(argv: list[str] | None = None) -> None:
             # Write the converted content to the selected file:
             with open(output_file, 'w') as f:
                 f.write(xml)
-        except Exception as ex:
+        except Exception as message:
             # Report the error:
-            warn(f'{output_file}: {ex}')
+            warn(f'{output_file}: {message}')
 
             # Update the exit code:
             exit_code = errno.EPERM
 
     # Return the exit code:
+    return exit_code
+
+def run(argv: list[str] | None = None) -> None:
+    try:
+        args = parse_args(argv)
+        exit_code = convert_topics(args)
+    except KeyboardInterrupt:
+        sys.exit(130)
+
     sys.exit(exit_code)

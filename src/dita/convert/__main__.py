@@ -25,7 +25,4 @@ import sys
 from . import cli
 
 if __name__ == '__main__':
-    try:
-        cli.parse_args()
-    except KeyboardInterrupt:
-        sys.exit(130)
+    cli.run()

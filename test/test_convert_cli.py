@@ -12,7 +12,7 @@ class TestDitaCli(unittest.TestCase):
     def test_invalid_option(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stderr(StringIO()) as err:
-            cli.parse_args(['--invalid'])
+            cli.run(['--invalid'])
 
         self.assertEqual(cm.exception.code, errno.ENOENT)
         self.assertRegex(err.getvalue(), rf'^usage: {NAME}')
@@ -20,7 +20,7 @@ class TestDitaCli(unittest.TestCase):
     def test_opt_help_short(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stdout(StringIO()) as out:
-            cli.parse_args(['-h'])
+            cli.run(['-h'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertRegex(out.getvalue(), rf'^usage: {NAME}')
@@ -28,7 +28,7 @@ class TestDitaCli(unittest.TestCase):
     def test_opt_help_long(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stdout(StringIO()) as out:
-            cli.parse_args(['--help'])
+            cli.run(['--help'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertRegex(out.getvalue(), rf'^usage: {NAME}')
@@ -36,7 +36,7 @@ class TestDitaCli(unittest.TestCase):
     def test_opt_version_short(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stdout(StringIO()) as out:
-            cli.parse_args(['-v'])
+            cli.run(['-v'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), f'{NAME} {VERSION}')
@@ -44,7 +44,7 @@ class TestDitaCli(unittest.TestCase):
     def test_opt_version_long(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stdout(StringIO()) as out:
-            cli.parse_args(['--version'])
+            cli.run(['--version'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), f'{NAME} {VERSION}')
@@ -55,7 +55,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stderr(StringIO()) as err:
-                cli.parse_args(['--type', 'topic', 'topic.dita'])
+                cli.run(['--type', 'topic', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, errno.ENOENT)
         self.assertRegex(err.getvalue(), r'error:.*invalid choice')
@@ -66,7 +66,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                cli.parse_args(['--type', 'concept', 'topic.dita'])
+                cli.run(['--type', 'concept', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
@@ -77,7 +77,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                cli.parse_args(['-t', 'concept', 'topic.dita'])
+                cli.run(['-t', 'concept', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
@@ -88,7 +88,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                cli.parse_args(['-t', 'task', 'topic.dita'])
+                cli.run(['-t', 'task', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<task />')
@@ -99,7 +99,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                cli.parse_args(['-t', 'reference', 'topic.dita'])
+                cli.run(['-t', 'reference', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<reference />')
@@ -111,7 +111,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                    cli.parse_args(['-t', 'concept', '-o', 'out.dita', 'topic.dita'])
+                    cli.run(['-t', 'concept', '-o', 'out.dita', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '')
@@ -125,7 +125,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                    cli.parse_args(['-t', 'concept', '--output', 'out.dita', 'topic.dita'])
+                    cli.run(['-t', 'concept', '--output', 'out.dita', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '')
@@ -138,7 +138,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                    cli.parse_args(['-t', 'concept', '-o', '-', 'topic.dita'])
+                    cli.run(['-t', 'concept', '-o', '-', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
@@ -151,7 +151,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                 contextlib.redirect_stdout(StringIO()) as out:
-                    cli.parse_args(['-t', 'concept', '-d', 'out', 'topic.dita'])
+                    cli.run(['-t', 'concept', '-d', 'out', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '')
@@ -167,7 +167,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                 contextlib.redirect_stdout(StringIO()) as out:
-                    cli.parse_args(['-t', 'concept', '--directory', 'out', 'topic.dita'])
+                    cli.run(['-t', 'concept', '--directory', 'out', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '')
@@ -178,7 +178,7 @@ class TestDitaCli(unittest.TestCase):
     def test_opt_directory_exclusivity(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stderr(StringIO()) as err:
-            cli.parse_args(['--output', 'out.dita', '--directory', 'out', 'topic.dita'])
+            cli.run(['--output', 'out.dita', '--directory', 'out', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, errno.ENOENT)
         self.assertRegex(err.getvalue(), r'error:.*not allowed with argument')
@@ -189,7 +189,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                     cli.parse_args(['-t', 'concept', '-g', 'topic.dita'])
+                     cli.run(['-t', 'concept', '-g', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
@@ -201,7 +201,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                     cli.parse_args(['-t', 'concept', '--generated', 'topic.dita'])
+                     cli.run(['-t', 'concept', '--generated', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
@@ -213,7 +213,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                     cli.parse_args(['-t', 'concept', '-G', 'topic.dita'])
+                     cli.run(['-t', 'concept', '-G', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
@@ -225,7 +225,7 @@ class TestDitaCli(unittest.TestCase):
 
             with self.assertRaises(SystemExit) as cm,\
                  contextlib.redirect_stdout(StringIO()) as out:
-                     cli.parse_args(['-t', 'concept', '--no-generated', 'topic.dita'])
+                     cli.run(['-t', 'concept', '--no-generated', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
@@ -234,7 +234,7 @@ class TestDitaCli(unittest.TestCase):
     def test_opt_generated_exclusivity(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stderr(StringIO()) as err:
-            cli.parse_args(['--generate', '--no-generate', 'topic.dita'])
+            cli.run(['--generate', '--no-generate', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, errno.ENOENT)
         self.assertRegex(err.getvalue(), r'error:.*not allowed with argument')
@@ -242,7 +242,7 @@ class TestDitaCli(unittest.TestCase):
     def test_invalid_file(self):
         with self.assertRaises(SystemExit) as cm,\
              contextlib.redirect_stderr(StringIO()) as err:
-                 cli.parse_args(['-t', 'concept', 'topic.dita'])
+                 cli.run(['-t', 'concept', 'topic.dita'])
 
         self.assertEqual(cm.exception.code, errno.EPERM)
         self.assertRegex(err.getvalue(), rf'^{NAME}:.*topic\.dita')
