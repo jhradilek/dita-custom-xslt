@@ -26,11 +26,12 @@ import errno
 import sys
 import os
 
+from copy import deepcopy
 from lxml import etree
 from . import NAME, VERSION, DESCRIPTION
 from .transform import to_concept, to_reference, to_task, \
                        to_concept_generated, to_reference_generated, \
-                       to_task_generated
+                       to_task_generated, to_single_topic, to_single_map
 
 # Define which symbols are to be exported:
 __all__ = ['convert', 'run']
@@ -74,10 +75,7 @@ def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
     return output_class
 
 # Convert the selected file:
-def convert(source_file: str, target_type: str | None = None, generated: bool = False) -> str:
-    # Parse the source file:
-    source_xml = etree.parse(source_file)
-
+def convert(source_file: str, source_xml: etree._ElementTree, target_type: str | None = None, generated: bool = False) -> etree._XSLTResultTree:
     # Determine the target type from the source file if not provided:
     if target_type is None:
         target_type = get_type(source_file, source_xml)
@@ -88,11 +86,15 @@ def convert(source_file: str, target_type: str | None = None, generated: bool = 
             'concept':       to_concept,
             'reference':     to_reference,
             'task':          to_task,
+            'single_topic':  to_single_topic,
+            'single_map':    to_single_map,
         },
         True: {
             'concept':   to_concept_generated,
             'reference': to_reference_generated,
             'task':      to_task_generated,
+            'single_topic':  to_single_topic,
+            'single_map':    to_single_map,
         },
     }[generated][target_type]
 
@@ -105,7 +107,182 @@ def convert(source_file: str, target_type: str | None = None, generated: bool = 
             print(f'{source_file}: {error.message}', file=sys.stderr)
 
     # Return the result:
-    return str(xml)
+    return xml
+
+# Convert individual topics:
+def convert_topics(args: argparse.Namespace) -> int:
+    # Set the initial exit code:
+    exit_code = 0
+
+    # Create the target directory:
+    if args.directory:
+        try:
+            os.makedirs(args.directory)
+        except FileExistsError:
+            pass
+        except Exception:
+            exit_with_error(f'error: Unable to create target directory: {args.directory}', errno.EACCES)
+
+    # Process all supplied files:
+    for input_file in args.files:
+        try:
+            # Parse the source file:
+            input_xml = etree.parse(input_file)
+
+            # Convert the selected file:
+            xml = convert(input_file, input_xml, args.type, args.generated)
+        except (etree.XMLSyntaxError, etree.XSLTApplyError) as message:
+            # Report the error:
+            warn(f'{input_file}: error: {message}')
+
+            # Do not proceed further with this file:
+            exit_code = errno.EPERM
+            continue
+        except (OSError, Exception) as message:
+            # Report the error:
+            warn(str(message))
+
+            # Do not proceed further with this file:
+            exit_code = errno.EPERM
+            continue
+
+        # Determine whether to write to standard output:
+        if args.output == sys.stdout and not args.directory:
+            # Print the converted content to standard output:
+            sys.stdout.write(str(xml))
+
+            # Proceed to the next file:
+            continue
+
+        # Compose the target file path:
+        if args.directory:
+            if input_file == sys.stdin:
+                output_file = str(os.path.join(args.directory, 'out.adoc'))
+            else:
+                output_file = str(os.path.join(args.directory, os.path.basename(input_file)))
+        else:
+            output_file = args.output
+
+        try:
+            # Write the converted content to the selected file:
+            with open(output_file, 'w') as f:
+                f.write(str(xml))
+        except Exception as message:
+            # Report the error:
+            warn(f'{output_file}: {message}')
+
+            # Update the exit code:
+            exit_code = errno.EPERM
+
+    # Return the exit code:
+    return exit_code
+
+# Split supplied topics:
+def split_topics(args: argparse.Namespace) -> int:
+    # Set the initial exit code:
+    exit_code = 0
+
+    # Create the target directory:
+    try:
+        os.makedirs(args.directory)
+    except FileExistsError:
+        pass
+    except Exception:
+        exit_with_error(f'error: Unable to create target directory: {args.directory}', errno.EACCES)
+
+    # Process all supplied files:
+    for input_file in args.files:
+        try:
+            # Parse the supplied file:
+            input_xml = etree.parse(input_file)
+
+            # Convert the supplied file to a topic with nested topics:
+            xml = convert(input_file, input_xml, 'single_topic', args.generated)
+        except (etree.XMLSyntaxError, etree.XSLTApplyError) as message:
+            # Report the error:
+            warn(f'{input_file}: error: {message}')
+
+            # Do not proceed further with this file:
+            exit_code = errno.EPERM
+            continue
+        except (OSError, Exception) as message:
+            # Report the error:
+            warn(str(message))
+
+            # Do not proceed further with this file:
+            exit_code = errno.EPERM
+            continue
+
+        # Process each topic individually:
+        for element in xml.iter():
+            # Skip elements other than topics:
+            if element.tag != 'topic':
+                continue
+
+            # TODO: Ensure that topics have a valid id and outputclass
+
+            # Create a copy of the topic subtree:
+            topic = etree.ElementTree(deepcopy(element))
+
+            # Remove all nested topics:
+            for e in topic.findall('.//topic'):
+                parent = e.getparent()
+                if parent is not None:
+                    parent.remove(e)
+
+            try:
+                # Convert the selected file in nested topics:
+                out = convert(input_file, topic, None, args.generated)
+            except etree.XSLTApplyError as message:
+                # Report the error:
+                warn(f'{input_file}: error: {message}')
+
+                # Do not proceed further with this file:
+                exit_code = errno.EPERM
+                continue
+
+            # Compose the target file path:
+            output_file = str(os.path.join(args.directory, str(element.attrib["id"]) + '.dita'))
+
+            try:
+                # Write the converted content to the selected file:
+                with open(output_file, 'w') as f:
+                    f.write(str(out))
+            except Exception as message:
+                # Report the error:
+                warn(f'{output_file}: {message}')
+
+                # Update the exit code:
+                exit_code = errno.EPERM
+
+        # Generate the DITA map:
+        try:
+            # Convert the supplied file to a DITA map:
+            out = convert(input_file, xml, 'single_map', args.generated)
+        except etree.XSLTApplyError as message:
+            # Report the error:
+            warn(f'{input_file}: error: {message}')
+
+            # Do not proceed further with this file:
+            exit_code = errno.EPERM
+            continue
+
+        # Compose the target file path:
+        output_file = str(os.path.join(args.directory, str(xml.getroot().attrib["id"]) + '.ditamap'))
+
+        try:
+            # Write the converted DITA map to the selected file:
+            with open(output_file, 'w') as f:
+                f.write(str(out))
+        except Exception as message:
+            # Report the error:
+            warn(f'{output_file}: {message}')
+
+            # Update the exit code:
+            exit_code = errno.EPERM
+
+    # Return the exit code:
+    return exit_code
 
 # Parse supplied command-line options:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -186,77 +363,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     # Return the parsed arguments:
     return args
 
-# Convert individual topics:
-def convert_topics(args: argparse.Namespace) -> int:
-    # Set the initial exit code:
-    exit_code = 0
-
-    # Create the target directory:
-    if args.directory:
-        try:
-            os.makedirs(args.directory)
-        except FileExistsError:
-            pass
-        except Exception:
-            exit_with_error(f'error: Unable to create target directory: {args.directory}', errno.EACCES)
-
-    # Process all supplied files:
-    for input_file in args.files:
-        try:
-            # Convert the selected file:
-            xml = convert(input_file, args.type, args.generated)
-        except (etree.XMLSyntaxError, etree.XSLTApplyError) as message:
-            # Report the error:
-            warn(f'{input_file}: error: {message}')
-
-            # Do not proceed further with this file:
-            exit_code = errno.EPERM
-            continue
-        except (OSError, Exception) as message:
-            # Report the error:
-            warn(str(message))
-
-            # Do not proceed further with this file:
-            exit_code = errno.EPERM
-            continue
-
-        # Determine whether to write to standard output:
-        if args.output == sys.stdout and not args.directory:
-            # Print the converted content to standard output:
-            sys.stdout.write(xml)
-
-            # Proceed to the next file:
-            continue
-
-        # Compose the target file path:
-        if args.directory:
-            if input_file == sys.stdin:
-                output_file = str(os.path.join(args.directory, 'out.adoc'))
-            else:
-                output_file = str(os.path.join(args.directory, os.path.basename(input_file)))
-        else:
-            output_file = args.output
-
-        try:
-            # Write the converted content to the selected file:
-            with open(output_file, 'w') as f:
-                f.write(xml)
-        except Exception as message:
-            # Report the error:
-            warn(f'{output_file}: {message}')
-
-            # Update the exit code:
-            exit_code = errno.EPERM
-
-    # Return the exit code:
-    return exit_code
-
 # The main entry point:
 def run(argv: list[str] | None = None) -> None:
     try:
+        # Parse command-line option:
         args = parse_args(argv)
-        exit_code = convert_topics(args)
+
+        # Determine the correct action:
+        if args.split_topic:
+            exit_code = split_topics(args)
+        else:
+            exit_code = convert_topics(args)
     except KeyboardInterrupt:
         sys.exit(130)
 
+    # Terminate the script:
     sys.exit(exit_code)
