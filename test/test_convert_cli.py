@@ -5,7 +5,7 @@ import os
 import sys
 from io import StringIO
 from lxml import etree
-from unittest.mock import mock_open, patch
+from unittest.mock import mock_open, patch, ANY
 from src.dita.convert import cli
 from src.dita.convert import NAME, VERSION
 
@@ -62,7 +62,8 @@ class TestDitaCli(unittest.TestCase):
         self.assertRegex(err.getvalue(), r'error:.*invalid choice')
 
     def test_opt_type_short(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<concept />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -73,7 +74,8 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
 
     def test_opt_type_long(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<concept />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -84,7 +86,8 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
 
     def test_opt_type_concept(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<concept />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -95,7 +98,8 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
 
     def test_opt_type_task(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<task />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -106,7 +110,8 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(out.getvalue().rstrip(), '<task />')
 
     def test_opt_type_reference(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<reference />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -126,6 +131,7 @@ class TestDitaCli(unittest.TestCase):
 
     def test_opt_output_short(self):
         with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse,\
              patch('src.dita.convert.cli.open') as file_open:
             convert.return_value = '<concept />'
 
@@ -140,6 +146,7 @@ class TestDitaCli(unittest.TestCase):
 
     def test_opt_output_long(self):
         with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse,\
              patch('src.dita.convert.cli.open') as file_open:
             convert.return_value = '<concept />'
 
@@ -153,7 +160,8 @@ class TestDitaCli(unittest.TestCase):
         file_open().__enter__().write.assert_called_once_with('<concept />')
 
     def test_opt_output_stdout(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<concept />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -166,6 +174,7 @@ class TestDitaCli(unittest.TestCase):
     def test_opt_directory_short(self):
         with patch('src.dita.convert.cli.convert') as convert,\
              patch('src.dita.convert.cli.open') as file_open,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse,\
              patch('src.dita.convert.cli.os.makedirs') as make_dir:
             convert.return_value = '<concept />'
 
@@ -182,6 +191,7 @@ class TestDitaCli(unittest.TestCase):
     def test_opt_directory_long(self):
         with patch('src.dita.convert.cli.convert') as convert,\
              patch('src.dita.convert.cli.open') as file_open,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse,\
              patch('src.dita.convert.cli.os.makedirs') as make_dir:
             convert.return_value = '<concept />'
 
@@ -204,7 +214,8 @@ class TestDitaCli(unittest.TestCase):
         self.assertRegex(err.getvalue(), r'error:.*not allowed with argument')
 
     def test_opt_generated_short(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<concept />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -213,10 +224,11 @@ class TestDitaCli(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
-        convert.assert_called_once_with('topic.dita', 'concept', True)
+        convert.assert_called_once_with('topic.dita', ANY, 'concept', True)
 
     def test_opt_generated_long(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<concept />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -225,10 +237,11 @@ class TestDitaCli(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
-        convert.assert_called_once_with('topic.dita', 'concept', True)
+        convert.assert_called_once_with('topic.dita', ANY, 'concept', True)
 
     def test_opt_no_generated_short(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<concept />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -237,10 +250,11 @@ class TestDitaCli(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
-        convert.assert_called_once_with('topic.dita', 'concept', False)
+        convert.assert_called_once_with('topic.dita', ANY, 'concept', False)
 
-    def test_opt_no_generated_short(self):
-        with patch('src.dita.convert.cli.convert') as convert:
+    def test_opt_no_generated_long(self):
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse:
             convert.return_value = '<concept />'
 
             with self.assertRaises(SystemExit) as cm,\
@@ -249,7 +263,7 @@ class TestDitaCli(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<concept />')
-        convert.assert_called_once_with('topic.dita', 'concept', False)
+        convert.assert_called_once_with('topic.dita', ANY, 'concept', False)
 
     def test_opt_generated_exclusivity(self):
         with self.assertRaises(SystemExit) as cm,\
