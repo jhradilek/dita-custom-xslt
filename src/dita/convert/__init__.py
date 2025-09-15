@@ -21,7 +21,7 @@
 # ARISING FROM,  OUT OF OR IN CONNECTION WITH  THE SOFTWARE  OR  THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-"""Convert a generic DITA topic to a specialized concept, task, or reference."""
+"""Convert generic DITA topics to specialized concepts, tasks, or references."""
 
 # Module metadata:
 __author__      = 'Jaromir Hradilek'

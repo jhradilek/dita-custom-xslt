@@ -61,6 +61,17 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(cm.exception.code, errno.ENOENT)
         self.assertRegex(err.getvalue(), r'error:.*invalid choice')
 
+    def test_opt_type_short(self):
+        with patch('src.dita.convert.cli.convert') as convert:
+            convert.return_value = '<concept />'
+
+            with self.assertRaises(SystemExit) as cm,\
+                 contextlib.redirect_stdout(StringIO()) as out:
+                cli.run(['-t', 'concept', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '<concept />')
+
     def test_opt_type_long(self):
         with patch('src.dita.convert.cli.convert') as convert:
             convert.return_value = '<concept />'
@@ -104,6 +115,14 @@ class TestDitaCli(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 0)
         self.assertEqual(out.getvalue().rstrip(), '<reference />')
+
+    def test_opt_split_topic_invalid(self):
+        with self.assertRaises(SystemExit) as cm,\
+             contextlib.redirect_stderr(StringIO()) as err:
+            cli.run(['--split-topic'])
+
+        self.assertEqual(cm.exception.code, errno.ENOENT)
+        self.assertRegex(err.getvalue(), rf'^usage: {NAME}')
 
     def test_opt_output_short(self):
         with patch('src.dita.convert.cli.convert') as convert,\
