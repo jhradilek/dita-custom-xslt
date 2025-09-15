@@ -31,6 +31,24 @@ class TestDitaConvertTransform(unittest.TestCase):
 
         self.assertIsInstance(transform.to_task(xml), etree._XSLTResultTree)
 
+    def test_to_concept_generated_returns_result(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-concept">
+            <title>Topic title</title>
+        </topic>
+        '''))
+
+        self.assertIsInstance(transform.to_concept_generated(xml), etree._XSLTResultTree)
+
+    def test_to_reference_generated_returns_result(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-concept">
+            <title>Topic title</title>
+        </topic>
+        '''))
+
+        self.assertIsInstance(transform.to_reference_generated(xml), etree._XSLTResultTree)
+
     def test_to_task_generated_returns_result(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-concept">
@@ -39,3 +57,21 @@ class TestDitaConvertTransform(unittest.TestCase):
         '''))
 
         self.assertIsInstance(transform.to_task_generated(xml), etree._XSLTResultTree)
+
+    def test_to_single_topic_returns_result(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-concept">
+            <title>Topic title</title>
+        </topic>
+        '''))
+
+        self.assertIsInstance(transform.to_single_topic(xml), etree._XSLTResultTree)
+
+    def test_to_single_map_returns_result(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-concept">
+            <title>Topic title</title>
+        </topic>
+        '''))
+
+        self.assertIsInstance(transform.to_single_map(xml), etree._XSLTResultTree)
