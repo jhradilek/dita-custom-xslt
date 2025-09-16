@@ -129,6 +129,30 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(cm.exception.code, errno.ENOENT)
         self.assertRegex(err.getvalue(), rf'^usage: {NAME}')
 
+    def test_opt_split_topic_short(self):
+        with patch('src.dita.convert.cli.split_topics') as split_topics:
+            split_topics.return_value = 0
+
+            with self.assertRaises(SystemExit) as cm,\
+                 contextlib.redirect_stdout(StringIO()) as out:
+                cli.run(['-s', '-d', 'out', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '')
+        split_topics.assert_called_once_with(ANY)
+
+    def test_opt_split_topic_long(self):
+        with patch('src.dita.convert.cli.split_topics') as split_topics:
+            split_topics.return_value = 0
+
+            with self.assertRaises(SystemExit) as cm,\
+                 contextlib.redirect_stdout(StringIO()) as out:
+                cli.run(['--split-topic', '--directory', 'out', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '')
+        split_topics.assert_called_once_with(ANY)
+
     def test_opt_output_short(self):
         with patch('src.dita.convert.cli.convert') as convert,\
              patch('src.dita.convert.cli.etree.parse') as etree_parse,\
