@@ -297,6 +297,109 @@ class TestDitaCli(unittest.TestCase):
         args = cli.parse_args(['-t', 'concept', '-o', '-'])
         self.assertEqual(args.output, sys.stdout)
 
+    def test_fix_element_id_no_attributes(self):
+        xml = etree.parse(StringIO('<topic />'))
+        element = xml.getroot()
+
+        cli.fix_element_id(element)
+
+        self.assertTrue(element.attrib.has_key('id'))
+        self.assertEqual(len(element.attrib['id']), 36)
+
+    def test_fix_element_id_no_id(self):
+        xml = etree.parse(StringIO('<topic outputclass="concept" />'))
+        element = xml.getroot()
+
+        cli.fix_element_id(element)
+
+        self.assertTrue(element.attrib.has_key('id'))
+        self.assertEqual(len(element.attrib['id']), 36)
+
+    def test_fix_element_id_has_id(self):
+        xml = etree.parse(StringIO('<topic id="test-id" />'))
+        element = xml.getroot()
+
+        cli.fix_element_id(element)
+
+        self.assertTrue(element.attrib.has_key('id'))
+        self.assertEqual(element.attrib['id'], 'test-id')
+
+    def test_fix_element_outputclass_no_attributes(self):
+        xml = etree.parse(StringIO('<topic />'))
+        element = xml.getroot()
+
+        cli.fix_element_outputclass(element)
+
+        self.assertTrue(element.attrib.has_key('outputclass'))
+        self.assertEqual(element.attrib['outputclass'], 'concept')
+
+    def test_fix_element_outputclass_no_outputclass(self):
+        xml = etree.parse(StringIO('<topic id="test-id" />'))
+        element = xml.getroot()
+
+        cli.fix_element_outputclass(element)
+
+        self.assertTrue(element.attrib.has_key('outputclass'))
+        self.assertEqual(element.attrib['outputclass'], 'concept')
+
+    def test_fix_element_outputclass_invalid_outputclass(self):
+        xml = etree.parse(StringIO('<topic outputclass="glossary" />'))
+        element = xml.getroot()
+
+        cli.fix_element_outputclass(element)
+
+        self.assertTrue(element.attrib.has_key('outputclass'))
+        self.assertEqual(element.attrib['outputclass'], 'concept')
+
+    def test_fix_element_outputclass_assembly(self):
+        xml = etree.parse(StringIO('<topic outputclass="assembly" />'))
+        element = xml.getroot()
+
+        cli.fix_element_outputclass(element)
+
+        self.assertTrue(element.attrib.has_key('outputclass'))
+        self.assertEqual(element.attrib['outputclass'], 'concept')
+
+    def test_fix_element_outputclass_concept(self):
+        xml = etree.parse(StringIO('<topic outputclass="concept" />'))
+        element = xml.getroot()
+
+        cli.fix_element_outputclass(element)
+
+        self.assertTrue(element.attrib.has_key('outputclass'))
+        self.assertEqual(element.attrib['outputclass'], 'concept')
+
+    def test_fix_element_outputclass_procedure(self):
+        xml = etree.parse(StringIO('<topic outputclass="procedure" />'))
+        element = xml.getroot()
+
+        cli.fix_element_outputclass(element)
+
+        self.assertTrue(element.attrib.has_key('outputclass'))
+        self.assertEqual(element.attrib['outputclass'], 'procedure')
+
+    def test_fix_element_outputclass_reference(self):
+        xml = etree.parse(StringIO('<topic outputclass="reference" />'))
+        element = xml.getroot()
+
+        cli.fix_element_outputclass(element)
+
+        self.assertTrue(element.attrib.has_key('outputclass'))
+        self.assertEqual(element.attrib['outputclass'], 'reference')
+
+    def test_fix_element_outputclass_snippet(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="parent" outputclass="task">
+            <topic id="tested" outputclass="snippet" />
+        </topic>
+        '''))
+
+        element = xml.find('.//topic[@id="tested"]')
+        cli.fix_element_outputclass(element)
+
+        self.assertTrue(element.attrib.has_key('outputclass'))
+        self.assertEqual(element.attrib['outputclass'], 'task')
+
     def test_get_type_assembly(self):
         xml = etree.parse(StringIO('<topic outputclass="assembly" />'))
 
