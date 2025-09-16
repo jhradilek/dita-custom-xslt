@@ -28,6 +28,7 @@ import os
 
 from copy import deepcopy
 from lxml import etree
+from uuid import uuid4
 from . import NAME, VERSION, DESCRIPTION
 from .transform import to_concept, to_reference, to_task, \
                        to_concept_generated, to_reference_generated, \
@@ -48,6 +49,35 @@ def exit_with_error(error_message: str, exit_status: int = errno.EPERM) -> None:
 def warn(error_message: str) -> None:
     # Print the supplied message to standard error output:
     print(f'{NAME}: {error_message}', file=sys.stderr)
+
+# Ensure that the XML element has a valid ID attribute set:
+def fix_element_id(xml_element: etree._Element) -> None:
+    # Check if the XML element already has an ID set:
+    if xml_element.attrib and xml_element.attrib.has_key('id'):
+        return
+
+    # Generate a unique ID:
+    xml_element.set('id', str(uuid4()))
+
+# Ensure that the XML element has a valid outputclass:
+def fix_element_outputclass(xml_element: etree._Element) -> None:
+    # Check if the XML element already has a valid output class:
+    if xml_element.attrib and xml_element.attrib.has_key('outputclass'):
+        outputclass = xml_element.attrib['outputclass']
+
+        # Check if the outputclass has a supported value:
+        if outputclass in ['concept', 'reference', 'procedure']:
+            return
+
+        # Use the parent outputclass instead of snippets:
+        if outputclass == 'snippet':
+            parent = xml_element.getparent()
+            if parent is not None:
+                xml_element.set('outputclass', str(parent.attrib['outputclass']))
+                return
+
+    # Use concept by default:
+    xml_element.set('outputclass', 'concept')
 
 # Extract the content type from the root element outputclass:
 def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
@@ -219,7 +249,11 @@ def split_topics(args: argparse.Namespace) -> int:
             if element.tag != 'topic':
                 continue
 
-            # TODO: Ensure that topics have a valid id and outputclass
+            # Ensure that the topic has a valid ID:
+            fix_element_id(element)
+
+            # Ensure that the topic has a valid outputclass:
+            fix_element_outputclass(element)
 
             # Create a copy of the topic subtree:
             topic = etree.ElementTree(deepcopy(element))
