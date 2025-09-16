@@ -25,7 +25,7 @@ Repository = "https://github.com/jhradilek/dita-custom-xslt"
 Issues = "https://github.com/jhradilek/dita-custom-xslt/issues"
 
 [project.scripts]
-dita-convert = "dita.convert.cli:parse_args"
+dita-convert = "dita.convert.cli:run"
 
 [build-system]
 requires = ["setuptools >= 61.0"]
