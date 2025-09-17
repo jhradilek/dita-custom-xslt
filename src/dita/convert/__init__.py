@@ -21,14 +21,14 @@
 # ARISING FROM,  OUT OF OR IN CONNECTION WITH  THE SOFTWARE  OR  THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-"""Convert a generic DITA topic to a specialized concept, task, or reference."""
+"""Convert generic DITA topics to specialized concepts, tasks, or references."""
 
 # Module metadata:
 __author__      = 'Jaromir Hradilek'
 __copyright__   = 'Copyright (C) 2024, 2025 Jaromir Hradilek'
 __license__     = 'MIT License'
 __description__ = __doc__
-__version__     = '1.3.5'
+__version__     = '1.4.0'
 
 # Expose general information about the project:
 NAME        = 'dita-convert'
