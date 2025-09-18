@@ -20,7 +20,7 @@ In combination with [asciidoctor-dita-vale](https://github.com/jhradilek/asciido
     dita-convert -g source_file.dita -o output_file.dita
     ```
 
-4.  Clean up the resulting DITA file:
+4.  Clean up the resulting DITA file if necessary:
 
     ```console
     dita-cleanup -iI -D ../images -X . output_file.dita
@@ -39,12 +39,6 @@ python3 -m pip install --upgrade dita-convert
 ### Using the command-line interface
 
 To convert a DITA topic to a specialized DITA content type, run the following command:
-
-```
-python3 -m dita.convert -t TYPE TOPIC_FILE
-```
-
-For convenience, the package provides a wrapper script that you can run directly as follows:
 
 ```
 dita-convert -t TYPE TOPIC_FILE
