@@ -101,53 +101,7 @@
     </xsl:call-template>
   </xsl:template>
 
-  <!-- Compose the shortdesc element: -->
-  <xsl:template name="shortdesc">
-    <xsl:param name="contents" />
-    <xsl:if test="$contents">
-      <xsl:element name="shortdesc">
-        <xsl:apply-templates select="$contents/text()|$contents/*" />
-      </xsl:element>
-    </xsl:if>
-  </xsl:template>
-
-  <!-- Compose the related-links element: -->
-  <xsl:template name="related-links">
-    <xsl:param name="contents" />
-    <xsl:variable name="list" select="$contents[self::ul][1]" />
-    <xsl:if test="$contents">
-      <xsl:if test="$contents[not(self::ul)]">
-        <xsl:message terminate="no">WARNING: Non-list elements found in related links, skipping...</xsl:message>
-      </xsl:if>
-      <xsl:if test="$contents[self::ul][2]">
-        <xsl:message terminate="no">WARNING: Extra list elements found in related-links, skipping...</xsl:message>
-      </xsl:if>
-      <xsl:if test="not($list)">
-        <xsl:message terminate="no">WARNING: No list elements found in related links</xsl:message>
-      </xsl:if>
-      <xsl:element name="related-links">
-        <xsl:for-each select="$list/li">
-          <xsl:choose>
-            <xsl:when test="not(xref)">
-              <xsl:message terminate="no">WARNING: Unexpected content found in related-links, skipping...</xsl:message>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:if test="count(*) &gt; 1 or text()">
-                <xsl:message terminate="no">WARNING: Unexpected content found in related-links, skipping...</xsl:message>
-              </xsl:if>
-              <xsl:element name="link">
-                <xsl:copy-of select="xref/@*" />
-                <xsl:if test="xref/text()">
-                  <xsl:element name="linktext">
-                    <xsl:apply-templates select="xref/text()" />
-                  </xsl:element>
-                </xsl:if>
-              </xsl:element>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:for-each>
-      </xsl:element>
-    </xsl:if>
-  </xsl:template>
+  <!-- Include the common templates: -->
+  <xsl:include href="common-templates.xsl" />
 
 </xsl:stylesheet>
