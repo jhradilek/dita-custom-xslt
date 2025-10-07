@@ -187,7 +187,7 @@ def convert_topics(args: argparse.Namespace) -> int:
         # Compose the target file path:
         if args.directory:
             if input_file == sys.stdin:
-                output_file = str(os.path.join(args.directory, 'out.adoc'))
+                output_file = str(os.path.join(args.directory, 'out.dita'))
             else:
                 output_file = str(os.path.join(args.directory, os.path.basename(input_file)))
         else:
