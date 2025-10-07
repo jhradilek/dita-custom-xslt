@@ -178,6 +178,9 @@
     <xsl:param name="contents" />
     <xsl:if test="$contents">
       <xsl:element name="shortdesc">
+        <xsl:call-template name="universal-attributes">
+          <xsl:with-param name="attributes" select="$contents/@*" />
+        </xsl:call-template>
         <xsl:apply-templates select="$contents/text()|$contents/*" />
       </xsl:element>
     </xsl:if>
@@ -198,6 +201,9 @@
         <xsl:message terminate="no">WARNING: No list elements found in related links</xsl:message>
       </xsl:if>
       <xsl:element name="related-links">
+        <xsl:call-template name="universal-attributes">
+          <xsl:with-param name="attributes" select="$list/@*" />
+        </xsl:call-template>
         <xsl:for-each select="$list/li">
           <xsl:choose>
             <xsl:when test="not(xref)">
@@ -219,6 +225,14 @@
           </xsl:choose>
         </xsl:for-each>
       </xsl:element>
+    </xsl:if>
+  </xsl:template>
+
+  <!-- Helper: Copy the universal attribute group: -->
+  <xsl:template name="universal-attributes">
+    <xsl:param name="attributes" />
+    <xsl:if test="$attributes">
+      <xsl:copy-of select="$attributes[name()='id' or name()='platform' or name()='product' or name()='audience' or name()='otherprops']" />
     </xsl:if>
   </xsl:template>
 

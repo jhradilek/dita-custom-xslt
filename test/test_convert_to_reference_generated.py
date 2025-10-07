@@ -347,3 +347,33 @@ class TestDitaConvertToReference(unittest.TestCase):
         self.assertTrue(reference.xpath('boolean(/reference/related-links/link/linktext[text()="Example link"])'))
         self.assertFalse(reference.xpath('boolean(//p[@outputclass="title"])'))
         self.assertFalse(reference.xpath('boolean(//xref)'))
+
+    def test_universal_attributes(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="abstract" id="short-description" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">Topic abstract</p>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul id="additional-resources" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        reference = transform.to_reference_generated(xml)
+
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@id="short-description"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@platform="linux mac"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@product="dita-convert"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@audience="novice"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@otherprops="pdf"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/shortdesc[@outputclass="abstract"])'))
+
+        self.assertTrue(reference.xpath('boolean(/reference/related-links[@id="additional-resources"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links[@platform="linux mac"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links[@product="dita-convert"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links[@audience="novice"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/related-links[@otherprops="pdf"])'))

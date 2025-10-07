@@ -375,3 +375,33 @@ class TestDitaConvertToConcept(unittest.TestCase):
         self.assertTrue(concept.xpath('boolean(//section/p[text()="Section introduction"])'))
         self.assertFalse(concept.xpath('boolean(//section[title="Additional resources"])'))
         self.assertFalse(concept.xpath('boolean(//xref)'))
+
+    def test_universal_attributes(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="abstract" id="short-description" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">Topic abstract</p>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul id="additional-resources" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        concept = transform.to_concept_generated(xml)
+
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@id="short-description"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@platform="linux mac"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@product="dita-convert"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@audience="novice"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@otherprops="pdf"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/shortdesc[@outputclass="abstract"])'))
+
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@id="additional-resources"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@platform="linux mac"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@product="dita-convert"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@audience="novice"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@otherprops="pdf"])'))

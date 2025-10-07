@@ -779,3 +779,33 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(/task/related-links/link[@href="http://example.com"])'))
         self.assertTrue(task.xpath('boolean(/task/related-links/link[@format="html"])'))
         self.assertTrue(task.xpath('boolean(/task/related-links/link[@scope="external"])'))
+
+    def test_universal_attributes(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="abstract" id="short-description" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">Topic abstract</p>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul id="additional-resources" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@id="short-description"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@platform="linux mac"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@product="dita-convert"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@audience="novice"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@otherprops="pdf"])'))
+        self.assertFalse(task.xpath('boolean(/task/shortdesc[@outputclass="abstract"])'))
+
+        self.assertTrue(task.xpath('boolean(/task/related-links[@id="additional-resources"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@platform="linux mac"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@product="dita-convert"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@audience="novice"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@otherprops="pdf"])'))
