@@ -142,6 +142,9 @@
         <xsl:message terminate="no">WARNING: Title found in stepxmp, skipping...</xsl:message>
       </xsl:if>
       <xsl:element name="steps">
+        <xsl:call-template name="universal-attributes">
+          <xsl:with-param name="attributes" select="$steps/@*" />
+        </xsl:call-template>
         <xsl:for-each select="$steps/li">
           <xsl:call-template name="step-substep">
             <xsl:with-param name="type" select="'step'" />

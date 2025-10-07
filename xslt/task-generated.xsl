@@ -184,6 +184,9 @@
           </xsl:choose>
         </xsl:variable>
         <xsl:element name="{$name}">
+          <xsl:call-template name="universal-attributes">
+            <xsl:with-param name="attributes" select="$list/@*" />
+          </xsl:call-template>
           <xsl:for-each select="$list/li">
             <xsl:call-template name="step-substep">
               <xsl:with-param name="type" select="'step'" />
