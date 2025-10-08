@@ -304,9 +304,17 @@ class TestDitaConvertToTask(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
-                <p>Topic introduction</p>
                 <ol id="steps" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr" compact="yes">
-                    <li>Task step</li>
+                    <li id="first-step">
+                        <p>Step introduction</p>
+                        <ol id="substeps">
+                            <li id="first-substep">
+                                <p>Substep introduction</p>
+                                <codeblock>Substep code</codeblock>
+                                <p>Substep explanation</p>
+                            </li>
+                        </ol>
+                    </li>
                 </ol>
             </body>
         </topic>
@@ -329,3 +337,8 @@ class TestDitaConvertToTask(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps[@xml:lang="en-us"])'))
         self.assertTrue(task.xpath('boolean(//steps[@dir="ltr"])'))
         self.assertFalse(task.xpath('boolean(//steps/@compact)'))
+
+        self.assertTrue(task.xpath('boolean(//steps[@id="steps"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step[@id="first-step"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps[@id="substeps"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep[@id="first-substep"])'))

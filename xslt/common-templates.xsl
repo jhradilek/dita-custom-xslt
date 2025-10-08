@@ -38,6 +38,9 @@
   <xsl:template name="step-substep">
     <xsl:param name="type" />
     <xsl:element name="{$type}">
+      <xsl:call-template name="universal-attributes">
+        <xsl:with-param name="attributes" select="@*" />
+      </xsl:call-template>
       <xsl:choose>
         <xsl:when test="text()">
           <xsl:variable name="info-element" select="*[not(contains($cmd-children, concat(' ', name(), ' ')))][1]" />
@@ -112,6 +115,9 @@
     <xsl:for-each select="$contents[self::ol]">
       <xsl:variable name="current-position" select="position()" />
       <xsl:element name="substeps">
+        <xsl:call-template name="universal-attributes">
+          <xsl:with-param name="attributes" select="@*" />
+        </xsl:call-template>
         <xsl:for-each select="li">
           <xsl:call-template name="step-substep">
             <xsl:with-param name="type" select="'substep'" />
