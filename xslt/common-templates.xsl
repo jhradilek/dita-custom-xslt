@@ -28,6 +28,12 @@
 -->
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <!-- Define the list of valid cmd element children: -->
+  <xsl:variable name="cmd-children" select="' abbreviated-form apiname b boolean cite cmdname codeph data data-about draft-comment equation-inline filepath fn foreign i image indexterm indextermref keyword line-through markupname mathml menucascade msgnum msgph numcharref option overline parameterentity parmname ph q required-cleanup sort-as state sub sup svg-container synph systemoutput term text textentity tm tt u uicontrol unknown userinput varname wintitle xmlatt xmlelement xmlnsname xmlpi xref '" />
+
+  <!-- Define the list of supported attributes from the universal attribute group: -->
+  <xsl:variable name="universal-attribute-group" select="' id props base platform product audience otherprops deliveryTarget importance rev status translate xml:lang dir '" />
+
   <!-- Compose the step/substep element: -->
   <xsl:template name="step-substep">
     <xsl:param name="type" />
@@ -231,9 +237,11 @@
   <!-- Helper: Copy the universal attribute group: -->
   <xsl:template name="universal-attributes">
     <xsl:param name="attributes" />
-    <xsl:if test="$attributes">
-      <xsl:copy-of select="$attributes[name()='id' or name()='platform' or name()='product' or name()='audience' or name()='otherprops']" />
-    </xsl:if>
+    <xsl:for-each select="$attributes">
+      <xsl:if test="contains($universal-attribute-group, concat(' ', name(), ' '))">
+        <xsl:copy-of select="." />
+      </xsl:if>
+    </xsl:for-each>
   </xsl:template>
 
   <!-- Helper: Compose an element with the given name and contents: -->

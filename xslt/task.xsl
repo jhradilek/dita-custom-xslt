@@ -66,9 +66,6 @@
     <xsl:message terminate="yes">ERROR: Multiple examples not allowed in a DITA task</xsl:message>
   </xsl:template>
 
-  <!-- Define a list of valid cmd element children: -->
-  <xsl:variable name="cmd-children" select="' abbreviated-form apiname b boolean cite cmdname codeph data data-about draft-comment equation-inline filepath fn foreign i image indexterm indextermref keyword line-through markupname mathml menucascade msgnum msgph numcharref option overline parameterentity parmname ph q required-cleanup sort-as state sub sup svg-container synph systemoutput term text textentity tm tt u uicontrol unknown userinput varname wintitle xmlatt xmlelement xmlnsname xmlpi xref '" />
-
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
     <xsl:copy>
