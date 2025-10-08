@@ -189,14 +189,11 @@
   <!-- Compose the shortdesc element: -->
   <xsl:template name="shortdesc">
     <xsl:param name="contents" />
-    <xsl:if test="$contents">
-      <xsl:element name="shortdesc">
-        <xsl:call-template name="universal-attributes">
-          <xsl:with-param name="attributes" select="$contents/@*" />
-        </xsl:call-template>
-        <xsl:apply-templates select="$contents/text()|$contents/*" />
-      </xsl:element>
-    </xsl:if>
+    <xsl:call-template name="compose-element">
+      <xsl:with-param name="name" select="'shortdesc'" />
+      <xsl:with-param name="contents" select="$contents/text()|$contents/*" />
+      <xsl:with-param name="attributes" select="$contents/@*" />
+    </xsl:call-template>
   </xsl:template>
 
   <!-- Compose the related-links element: -->
