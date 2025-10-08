@@ -803,7 +803,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
                 </ol>
                 <p outputclass="title"><b>Additional resources</b></p>
                 <ul id="additional-resources">
-                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                    <li><xref href="http://example.com" format="html" scope="external" id="external-link" /></li>
                 </ul>
             </body>
         </topic>
@@ -835,3 +835,4 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep/cmd[@id="substep-intro"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep/stepxmp[@id="substep-example"])'))
         self.assertTrue(task.xpath('boolean(//related-links[@id="additional-resources"])'))
+        self.assertTrue(task.xpath('boolean(//related-links/link[@id="external-link"])'))

@@ -357,7 +357,7 @@ class TestDitaConvertToReference(unittest.TestCase):
                 <p>Topic introduction</p>
                 <p outputclass="title"><b>Additional resources</b></p>
                 <ul id="additional-resources">
-                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                    <li><xref href="http://example.com" format="html" scope="external" id="external-link" /></li>
                 </ul>
             </body>
         </topic>
@@ -382,3 +382,4 @@ class TestDitaConvertToReference(unittest.TestCase):
         self.assertFalse(reference.xpath('boolean(//shortdesc/@outputclass)'))
 
         self.assertTrue(reference.xpath('boolean(//related-links[@id="additional-resources"])'))
+        self.assertTrue(reference.xpath('boolean(//related-links/link[@id="external-link"])'))

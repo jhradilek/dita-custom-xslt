@@ -385,7 +385,7 @@ class TestDitaConvertToConcept(unittest.TestCase):
                 <p>Topic introduction</p>
                 <p outputclass="title"><b>Additional resources</b></p>
                 <ul id="additional-resources">
-                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                    <li><xref href="http://example.com" format="html" scope="external" id="external-link" /></li>
                 </ul>
             </body>
         </topic>
@@ -410,3 +410,4 @@ class TestDitaConvertToConcept(unittest.TestCase):
         self.assertFalse(concept.xpath('boolean(//shortdesc/@outputclass)'))
 
         self.assertTrue(concept.xpath('boolean(//related-links[@id="additional-resources"])'))
+        self.assertTrue(concept.xpath('boolean(//related-links/link[@id="external-link"])'))
