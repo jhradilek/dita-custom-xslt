@@ -785,10 +785,10 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
-                <p outputclass="abstract" id="short-description" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">Topic abstract</p>
+                <p outputclass="abstract" id="short-description" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr">Topic abstract</p>
                 <p>Topic introduction</p>
                 <p outputclass="title"><b>Additional resources</b></p>
-                <ul id="additional-resources" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">
+                <ul id="additional-resources" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr">
                     <li><xref href="http://example.com" format="html" scope="external" /></li>
                 </ul>
             </body>
@@ -798,14 +798,32 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         task = transform.to_task_generated(xml)
 
         self.assertTrue(task.xpath('boolean(/task/shortdesc[@id="short-description"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@props="persona(sysadmin)"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@base="arch(x86_64)"])'))
         self.assertTrue(task.xpath('boolean(/task/shortdesc[@platform="linux mac"])'))
         self.assertTrue(task.xpath('boolean(/task/shortdesc[@product="dita-convert"])'))
         self.assertTrue(task.xpath('boolean(/task/shortdesc[@audience="novice"])'))
         self.assertTrue(task.xpath('boolean(/task/shortdesc[@otherprops="pdf"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@deliveryTarget="pdf"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@importance="normal"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@rev="v1.0.0"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@status="new"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@translate="yes"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@xml:lang="en-us"])'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[@dir="ltr"])'))
         self.assertFalse(task.xpath('boolean(/task/shortdesc[@outputclass="abstract"])'))
 
         self.assertTrue(task.xpath('boolean(/task/related-links[@id="additional-resources"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@props="persona(sysadmin)"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@base="arch(x86_64)"])'))
         self.assertTrue(task.xpath('boolean(/task/related-links[@platform="linux mac"])'))
         self.assertTrue(task.xpath('boolean(/task/related-links[@product="dita-convert"])'))
         self.assertTrue(task.xpath('boolean(/task/related-links[@audience="novice"])'))
         self.assertTrue(task.xpath('boolean(/task/related-links[@otherprops="pdf"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@deliveryTarget="pdf"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@importance="normal"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@rev="v1.0.0"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@status="new"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@translate="yes"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@xml:lang="en-us"])'))
+        self.assertTrue(task.xpath('boolean(/task/related-links[@dir="ltr"])'))

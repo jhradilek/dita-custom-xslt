@@ -381,10 +381,10 @@ class TestDitaConvertToConcept(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
-                <p outputclass="abstract" id="short-description" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">Topic abstract</p>
+                <p outputclass="abstract" id="short-description" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr">Topic abstract</p>
                 <p>Topic introduction</p>
                 <p outputclass="title"><b>Additional resources</b></p>
-                <ul id="additional-resources" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf">
+                <ul id="additional-resources" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr">
                     <li><xref href="http://example.com" format="html" scope="external" /></li>
                 </ul>
             </body>
@@ -394,14 +394,32 @@ class TestDitaConvertToConcept(unittest.TestCase):
         concept = transform.to_concept_generated(xml)
 
         self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@id="short-description"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@props="persona(sysadmin)"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@base="arch(x86_64)"])'))
         self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@platform="linux mac"])'))
         self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@product="dita-convert"])'))
         self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@audience="novice"])'))
         self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@otherprops="pdf"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@deliveryTarget="pdf"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@importance="normal"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@rev="v1.0.0"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@status="new"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@translate="yes"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@xml:lang="en-us"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[@dir="ltr"])'))
         self.assertFalse(concept.xpath('boolean(/concept/shortdesc[@outputclass="abstract"])'))
 
         self.assertTrue(concept.xpath('boolean(/concept/related-links[@id="additional-resources"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@props="persona(sysadmin)"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@base="arch(x86_64)"])'))
         self.assertTrue(concept.xpath('boolean(/concept/related-links[@platform="linux mac"])'))
         self.assertTrue(concept.xpath('boolean(/concept/related-links[@product="dita-convert"])'))
         self.assertTrue(concept.xpath('boolean(/concept/related-links[@audience="novice"])'))
         self.assertTrue(concept.xpath('boolean(/concept/related-links[@otherprops="pdf"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@deliveryTarget="pdf"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@importance="normal"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@rev="v1.0.0"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@status="new"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@translate="yes"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@xml:lang="en-us"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/related-links[@dir="ltr"])'))
