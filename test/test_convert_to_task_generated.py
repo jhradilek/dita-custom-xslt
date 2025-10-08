@@ -790,10 +790,10 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
                 <p outputclass="title"><b>Procedure</b></p>
                 <ol id="steps">
                     <li id="first-step">
-                        <p>Step introduction</p>
+                        <p id="step-intro">Step introduction</p>
                         <ol id="substeps">
                             <li id="first-substep">
-                                <p>Substep introduction</p>
+                                <p id="substep-intro">Substep introduction</p>
                                 <codeblock>Substep code</codeblock>
                                 <p>Substep explanation</p>
                             </li>
@@ -828,6 +828,8 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
 
         self.assertTrue(task.xpath('boolean(//steps[@id="steps"])'))
         self.assertTrue(task.xpath('boolean(//steps/step[@id="first-step"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd[@id="step-intro"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[@id="substeps"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep[@id="first-substep"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep/cmd[@id="substep-intro"])'))
         self.assertTrue(task.xpath('boolean(//related-links[@id="additional-resources"])'))

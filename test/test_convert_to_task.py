@@ -306,10 +306,10 @@ class TestDitaConvertToTask(unittest.TestCase):
             <body>
                 <ol id="steps" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr" compact="yes">
                     <li id="first-step">
-                        <p>Step introduction</p>
+                        <p id="step-intro">Step introduction</p>
                         <ol id="substeps">
                             <li id="first-substep">
-                                <p>Substep introduction</p>
+                                <p id="substep-intro">Substep introduction</p>
                                 <codeblock>Substep code</codeblock>
                                 <p>Substep explanation</p>
                             </li>
@@ -340,5 +340,7 @@ class TestDitaConvertToTask(unittest.TestCase):
 
         self.assertTrue(task.xpath('boolean(//steps[@id="steps"])'))
         self.assertTrue(task.xpath('boolean(//steps/step[@id="first-step"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd[@id="step-intro"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[@id="substeps"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep[@id="first-substep"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep/cmd[@id="substep-intro"])'))

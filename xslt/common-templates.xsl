@@ -67,6 +67,7 @@
           <xsl:call-template name="compose-element">
             <xsl:with-param name="name" select="'cmd'" />
             <xsl:with-param name="contents" select="*[1]/text()|*[1]/*" />
+            <xsl:with-param name="attributes" select="*[1]/@*" />
           </xsl:call-template>
           <xsl:if test="*[2]">
             <xsl:call-template name="info">
@@ -254,8 +255,14 @@
   <xsl:template name="compose-element">
     <xsl:param name="name" />
     <xsl:param name="contents" />
+    <xsl:param name="attributes" />
     <xsl:if test="$contents">
       <xsl:element name="{$name}">
+        <xsl:if test="$attributes">
+          <xsl:call-template name="universal-attributes">
+            <xsl:with-param name="attributes" select="$attributes" />
+          </xsl:call-template>
+        </xsl:if>
         <xsl:apply-templates select="$contents" />
       </xsl:element>
     </xsl:if>
