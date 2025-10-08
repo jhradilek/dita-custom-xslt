@@ -356,7 +356,7 @@ class TestDitaConvertToReference(unittest.TestCase):
                 <p outputclass="abstract" id="short-description" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr">Topic abstract</p>
                 <p>Topic introduction</p>
                 <p outputclass="title"><b>Additional resources</b></p>
-                <ul id="additional-resources" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr">
+                <ul id="additional-resources">
                     <li><xref href="http://example.com" format="html" scope="external" /></li>
                 </ul>
             </body>
@@ -365,33 +365,20 @@ class TestDitaConvertToReference(unittest.TestCase):
 
         reference = transform.to_reference_generated(xml)
 
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@id="short-description"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@props="persona(sysadmin)"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@base="arch(x86_64)"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@platform="linux mac"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@product="dita-convert"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@audience="novice"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@otherprops="pdf"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@deliveryTarget="pdf"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@importance="normal"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@rev="v1.0.0"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@status="new"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@translate="yes"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@xml:lang="en-us"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[@dir="ltr"])'))
-        self.assertFalse(reference.xpath('boolean(/reference/shortdesc[@outputclass="abstract"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@id="short-description"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@props="persona(sysadmin)"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@base="arch(x86_64)"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@platform="linux mac"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@product="dita-convert"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@audience="novice"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@otherprops="pdf"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@deliveryTarget="pdf"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@importance="normal"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@rev="v1.0.0"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@status="new"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@translate="yes"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@xml:lang="en-us"])'))
+        self.assertTrue(reference.xpath('boolean(//shortdesc[@dir="ltr"])'))
+        self.assertFalse(reference.xpath('boolean(//shortdesc/@outputclass)'))
 
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@id="additional-resources"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@props="persona(sysadmin)"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@base="arch(x86_64)"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@platform="linux mac"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@product="dita-convert"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@audience="novice"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@otherprops="pdf"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@deliveryTarget="pdf"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@importance="normal"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@rev="v1.0.0"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@status="new"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@translate="yes"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@xml:lang="en-us"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/related-links[@dir="ltr"])'))
+        self.assertTrue(reference.xpath('boolean(//related-links[@id="additional-resources"])'))
