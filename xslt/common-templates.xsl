@@ -165,6 +165,7 @@
       <xsl:call-template name="compose-element">
         <xsl:with-param name="name" select="'stepxmp'" />
         <xsl:with-param name="contents" select="text()|*[not(self::title)]" />
+        <xsl:with-param name="attributes" select="@*" />
       </xsl:call-template>
       <xsl:choose>
         <xsl:when test="following-sibling::example">

@@ -796,6 +796,7 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
                                 <p id="substep-intro">Substep introduction</p>
                                 <codeblock>Substep code</codeblock>
                                 <p>Substep explanation</p>
+                                <example id="substep-example">Substep example</example>
                             </li>
                         </ol>
                     </li>
@@ -832,4 +833,5 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[@id="substeps"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep[@id="first-substep"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep/cmd[@id="substep-intro"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep/stepxmp[@id="substep-example"])'))
         self.assertTrue(task.xpath('boolean(//related-links[@id="additional-resources"])'))
