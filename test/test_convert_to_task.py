@@ -264,7 +264,6 @@ class TestDitaConvertToTask(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
-                <p outputclass="title"><b>Procedure</b></p>
                 <ol>
                     <li>
                         <p>Step introduction</p>
@@ -299,3 +298,34 @@ class TestDitaConvertToTask(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[2]/substep/cmd[text()="Second substeps"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/stepxmp[text()="Step example"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[3]/p[text()="Step summary"])'))
+
+    def test_universal_attributes(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p>Topic introduction</p>
+                <ol id="steps" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr" compact="yes">
+                    <li>Task step</li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task(xml)
+
+        self.assertTrue(task.xpath('boolean(//steps[@id="steps"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@props="persona(sysadmin)"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@base="arch(x86_64)"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@platform="linux mac"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@product="dita-convert"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@audience="novice"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@otherprops="pdf"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@deliveryTarget="pdf"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@importance="normal"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@rev="v1.0.0"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@status="new"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@translate="yes"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@xml:lang="en-us"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@dir="ltr"])'))
+        self.assertFalse(task.xpath('boolean(//steps/@compact)'))
