@@ -28,10 +28,19 @@
 -->
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <!-- Define the list of valid cmd element children: -->
+  <xsl:variable name="cmd-children" select="' abbreviated-form apiname b boolean cite cmdname codeph data data-about draft-comment equation-inline filepath fn foreign i image indexterm indextermref keyword line-through markupname mathml menucascade msgnum msgph numcharref option overline parameterentity parmname ph q required-cleanup sort-as state sub sup svg-container synph systemoutput term text textentity tm tt u uicontrol unknown userinput varname wintitle xmlatt xmlelement xmlnsname xmlpi xref '" />
+
+  <!-- Define the list of supported attributes from the universal attribute group: -->
+  <xsl:variable name="universal-attribute-group" select="' id props base platform product audience otherprops deliveryTarget importance rev status translate xml:lang dir '" />
+
   <!-- Compose the step/substep element: -->
   <xsl:template name="step-substep">
     <xsl:param name="type" />
     <xsl:element name="{$type}">
+      <xsl:call-template name="universal-attributes">
+        <xsl:with-param name="attributes" select="@*" />
+      </xsl:call-template>
       <xsl:choose>
         <xsl:when test="text()">
           <xsl:variable name="info-element" select="*[not(contains($cmd-children, concat(' ', name(), ' ')))][1]" />
@@ -58,6 +67,7 @@
           <xsl:call-template name="compose-element">
             <xsl:with-param name="name" select="'cmd'" />
             <xsl:with-param name="contents" select="*[1]/text()|*[1]/*" />
+            <xsl:with-param name="attributes" select="*[1]/@*" />
           </xsl:call-template>
           <xsl:if test="*[2]">
             <xsl:call-template name="info">
@@ -106,6 +116,9 @@
     <xsl:for-each select="$contents[self::ol]">
       <xsl:variable name="current-position" select="position()" />
       <xsl:element name="substeps">
+        <xsl:call-template name="universal-attributes">
+          <xsl:with-param name="attributes" select="@*" />
+        </xsl:call-template>
         <xsl:for-each select="li">
           <xsl:call-template name="step-substep">
             <xsl:with-param name="type" select="'substep'" />
@@ -152,6 +165,7 @@
       <xsl:call-template name="compose-element">
         <xsl:with-param name="name" select="'stepxmp'" />
         <xsl:with-param name="contents" select="text()|*[not(self::title)]" />
+        <xsl:with-param name="attributes" select="@*" />
       </xsl:call-template>
       <xsl:choose>
         <xsl:when test="following-sibling::example">
@@ -176,11 +190,11 @@
   <!-- Compose the shortdesc element: -->
   <xsl:template name="shortdesc">
     <xsl:param name="contents" />
-    <xsl:if test="$contents">
-      <xsl:element name="shortdesc">
-        <xsl:apply-templates select="$contents/text()|$contents/*" />
-      </xsl:element>
-    </xsl:if>
+    <xsl:call-template name="compose-element">
+      <xsl:with-param name="name" select="'shortdesc'" />
+      <xsl:with-param name="contents" select="$contents/text()|$contents/*" />
+      <xsl:with-param name="attributes" select="$contents/@*" />
+    </xsl:call-template>
   </xsl:template>
 
   <!-- Compose the related-links element: -->
@@ -198,6 +212,9 @@
         <xsl:message terminate="no">WARNING: No list elements found in related links</xsl:message>
       </xsl:if>
       <xsl:element name="related-links">
+        <xsl:call-template name="universal-attributes">
+          <xsl:with-param name="attributes" select="$list/@*" />
+        </xsl:call-template>
         <xsl:for-each select="$list/li">
           <xsl:choose>
             <xsl:when test="not(xref)">
@@ -222,12 +239,28 @@
     </xsl:if>
   </xsl:template>
 
+  <!-- Helper: Copy the universal attribute group: -->
+  <xsl:template name="universal-attributes">
+    <xsl:param name="attributes" />
+    <xsl:for-each select="$attributes">
+      <xsl:if test="contains($universal-attribute-group, concat(' ', name(), ' '))">
+        <xsl:copy-of select="." />
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+
   <!-- Helper: Compose an element with the given name and contents: -->
   <xsl:template name="compose-element">
     <xsl:param name="name" />
     <xsl:param name="contents" />
+    <xsl:param name="attributes" />
     <xsl:if test="$contents">
       <xsl:element name="{$name}">
+        <xsl:if test="$attributes">
+          <xsl:call-template name="universal-attributes">
+            <xsl:with-param name="attributes" select="$attributes" />
+          </xsl:call-template>
+        </xsl:if>
         <xsl:apply-templates select="$contents" />
       </xsl:element>
     </xsl:if>

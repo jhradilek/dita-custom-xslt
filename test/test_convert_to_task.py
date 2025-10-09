@@ -264,7 +264,6 @@ class TestDitaConvertToTask(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
-                <p outputclass="title"><b>Procedure</b></p>
                 <ol>
                     <li>
                         <p>Step introduction</p>
@@ -299,3 +298,51 @@ class TestDitaConvertToTask(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/substeps[2]/substep/cmd[text()="Second substeps"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/stepxmp[text()="Step example"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info[3]/p[text()="Step summary"])'))
+
+    def test_universal_attributes(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <ol id="steps" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr" compact="yes">
+                    <li id="first-step">
+                        <p id="step-intro">Step introduction</p>
+                        <ol id="substeps">
+                            <li id="first-substep">
+                                <p id="substep-intro">Substep introduction</p>
+                                <codeblock>Substep code</codeblock>
+                                <p>Substep explanation</p>
+                                <example id="substep-example">Substep example</example>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task(xml)
+
+        self.assertTrue(task.xpath('boolean(//steps[@id="steps"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@props="persona(sysadmin)"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@base="arch(x86_64)"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@platform="linux mac"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@product="dita-convert"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@audience="novice"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@otherprops="pdf"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@deliveryTarget="pdf"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@importance="normal"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@rev="v1.0.0"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@status="new"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@translate="yes"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@xml:lang="en-us"])'))
+        self.assertTrue(task.xpath('boolean(//steps[@dir="ltr"])'))
+        self.assertFalse(task.xpath('boolean(//steps/@compact)'))
+
+        self.assertTrue(task.xpath('boolean(//steps[@id="steps"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step[@id="first-step"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd[@id="step-intro"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps[@id="substeps"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep[@id="first-substep"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep/cmd[@id="substep-intro"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/substeps/substep/stepxmp[@id="substep-example"])'))

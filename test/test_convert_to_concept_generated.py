@@ -375,3 +375,39 @@ class TestDitaConvertToConcept(unittest.TestCase):
         self.assertTrue(concept.xpath('boolean(//section/p[text()="Section introduction"])'))
         self.assertFalse(concept.xpath('boolean(//section[title="Additional resources"])'))
         self.assertFalse(concept.xpath('boolean(//xref)'))
+
+    def test_universal_attributes(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="abstract" id="short-description" props="persona(sysadmin)" base="arch(x86_64)" platform="linux mac" product="dita-convert" audience="novice" otherprops="pdf" deliveryTarget="pdf" importance="normal" rev="v1.0.0" status="new" translate="yes" xml:lang="en-us" dir="ltr">Topic abstract</p>
+                <p>Topic introduction</p>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul id="additional-resources">
+                    <li><xref href="http://example.com" format="html" scope="external" id="external-link" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        concept = transform.to_concept_generated(xml)
+
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@id="short-description"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@props="persona(sysadmin)"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@base="arch(x86_64)"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@platform="linux mac"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@product="dita-convert"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@audience="novice"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@otherprops="pdf"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@deliveryTarget="pdf"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@importance="normal"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@rev="v1.0.0"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@status="new"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@translate="yes"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@xml:lang="en-us"])'))
+        self.assertTrue(concept.xpath('boolean(//shortdesc[@dir="ltr"])'))
+        self.assertFalse(concept.xpath('boolean(//shortdesc/@outputclass)'))
+
+        self.assertTrue(concept.xpath('boolean(//related-links[@id="additional-resources"])'))
+        self.assertTrue(concept.xpath('boolean(//related-links/link[@id="external-link"])'))
