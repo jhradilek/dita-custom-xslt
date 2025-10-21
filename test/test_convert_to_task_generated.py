@@ -596,6 +596,90 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
         self.assertTrue(task.xpath('boolean(//steps/step/info/codeblock[text()="Step code"])'))
         self.assertTrue(task.xpath('boolean(//steps/step/info/p[text()="Step explanation"])'))
 
+    def test_task_step_info_text(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="title"><b>Procedure</b></p>
+                <ol>
+                    <li>Step introduction
+                        <codeblock>Step code</codeblock>
+                        <p>Step explanation</p>
+                    </li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd[normalize-space()="Step introduction"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/info/codeblock[text()="Step code"])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/info/p[text()="Step explanation"])'))
+
+    def test_task_step_cmd_text(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="title"><b>Procedure</b></p>
+                <ol>
+                    <li>Step introduction with <ph>an inline phrase</ph>.</li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd[text()[1]="Step introduction with "])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd[text()[2]="."])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd/ph[text()="an inline phrase"])'))
+
+    def test_task_step_cmd_no_text(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="title"><b>Procedure</b></p>
+                <ol>
+                    <li>
+                        <ph>First phrase.</ph><ph>Second phrase.</ph>
+                    </li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd/ph[1][text()="First phrase."])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd/ph[2][text()="Second phrase."])'))
+        self.assertFalse(task.xpath('boolean(//steps/step/info)'))
+
+    def test_task_step_cmd_no_text_info(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <p outputclass="title"><b>Procedure</b></p>
+                <ol>
+                    <li>
+                        <ph>First phrase.</ph><ph>Second phrase.</ph>
+                        <codeblock>Step code</codeblock>
+                    </li>
+                </ol>
+            </body>
+        </topic>
+        '''))
+
+        task = transform.to_task_generated(xml)
+
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd/ph[1][text()="First phrase."])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/cmd/ph[2][text()="Second phrase."])'))
+        self.assertTrue(task.xpath('boolean(//steps/step/info/codeblock[text()="Step code"])'))
+
     def test_task_stepxmp(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
