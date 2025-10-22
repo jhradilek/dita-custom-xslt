@@ -46,9 +46,12 @@ def exit_with_error(error_message: str, exit_status: int = errno.EPERM) -> None:
     sys.exit(exit_status)
 
 # Print a message to standard error output:
-def warn(error_message: str) -> None:
+def warn(error_message: str, file_name: str | None = None) -> None:
     # Print the supplied message to standard error output:
-    print(f'{NAME}: {error_message}', file=sys.stderr)
+    if file_name and file_name != sys.stdin:
+        print(f'{NAME}: {file_name}: {error_message}', file=sys.stderr)
+    else:
+        print(f'{NAME}: {error_message}', file=sys.stderr)
 
 # Ensure that the XML element has a valid ID attribute set:
 def fix_element_id(xml_element: etree._Element) -> None:
@@ -86,14 +89,14 @@ def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
 
     # Verify that the outputclass attribute is defined:
     if 'outputclass' not in attributes:
-        raise Exception(f'{source_file}: error: outputclass not found, use -t/--type')
+        raise Exception(f'error: outputclass not found, use -t/--type')
 
     # Get the outputclass attribute value:
     output_class = str(attributes['outputclass'].lower())
 
     # Verify that the outputclass value is supported:
     if output_class not in ['assembly', 'concept', 'procedure', 'task', 'reference']:
-        raise Exception(f'{source_file}: error: unsupported outputclass "{output_class}", use -t/--type')
+        raise Exception(f'error: unsupported outputclass "{output_class}", use -t/--type')
 
     # Adjust the outputclass if needed:
     if output_class == 'assembly':
@@ -134,7 +137,7 @@ def convert(source_file: str, source_xml: etree._ElementTree, target_type: str |
     # Print any warning messages to standard error output:
     if hasattr(transform, 'error_log'):
         for error in transform.error_log:
-            print(f'{source_file}: {error.message}', file=sys.stderr)
+            warn(str(error.message), source_file)
 
     # Return the result:
     return xml
@@ -161,16 +164,9 @@ def convert_topics(args: argparse.Namespace) -> int:
 
             # Convert the selected file:
             xml = convert(input_file, input_xml, args.type, args.generated)
-        except (etree.XMLSyntaxError, etree.XSLTApplyError) as message:
+        except (etree.XMLSyntaxError, etree.XSLTApplyError, OSError, Exception) as message:
             # Report the error:
-            warn(f'{input_file}: error: {message}')
-
-            # Do not proceed further with this file:
-            exit_code = errno.EPERM
-            continue
-        except (OSError, Exception) as message:
-            # Report the error:
-            warn(str(message))
+            warn(str(message), input_file)
 
             # Do not proceed further with this file:
             exit_code = errno.EPERM
@@ -199,7 +195,7 @@ def convert_topics(args: argparse.Namespace) -> int:
                 f.write(str(xml))
         except Exception as message:
             # Report the error:
-            warn(f'{output_file}: {message}')
+            warn(str(message), output_file)
 
             # Update the exit code:
             exit_code = errno.EPERM
@@ -228,16 +224,9 @@ def split_topics(args: argparse.Namespace) -> int:
 
             # Convert the supplied file to a topic with nested topics:
             xml = convert(input_file, input_xml, 'single_topic', args.generated)
-        except (etree.XMLSyntaxError, etree.XSLTApplyError) as message:
+        except (etree.XMLSyntaxError, etree.XSLTApplyError, OSError, Exception) as message:
             # Report the error:
-            warn(f'{input_file}: error: {message}')
-
-            # Do not proceed further with this file:
-            exit_code = errno.EPERM
-            continue
-        except (OSError, Exception) as message:
-            # Report the error:
-            warn(str(message))
+            warn(str(message), input_file)
 
             # Do not proceed further with this file:
             exit_code = errno.EPERM
@@ -269,7 +258,7 @@ def split_topics(args: argparse.Namespace) -> int:
                 out = convert(input_file, topic, None, args.generated)
             except etree.XSLTApplyError as message:
                 # Report the error:
-                warn(f'{input_file}: error: {message}')
+                warn(f'error: {message}', input_file)
 
                 # Do not proceed further with this file:
                 exit_code = errno.EPERM
@@ -284,7 +273,7 @@ def split_topics(args: argparse.Namespace) -> int:
                     f.write(str(out))
             except Exception as message:
                 # Report the error:
-                warn(f'{output_file}: {message}')
+                warn(str(message), output_file)
 
                 # Update the exit code:
                 exit_code = errno.EPERM
@@ -295,7 +284,7 @@ def split_topics(args: argparse.Namespace) -> int:
             out = convert(input_file, xml, 'single_map', args.generated)
         except etree.XSLTApplyError as message:
             # Report the error:
-            warn(f'{input_file}: error: {message}')
+            warn(f'error: {message}', input_file)
 
             # Do not proceed further with this file:
             exit_code = errno.EPERM
@@ -310,7 +299,7 @@ def split_topics(args: argparse.Namespace) -> int:
                 f.write(str(out))
         except Exception as message:
             # Report the error:
-            warn(f'{output_file}: {message}')
+            warn(f'error: {message}', output_file)
 
             # Update the exit code:
             exit_code = errno.EPERM
