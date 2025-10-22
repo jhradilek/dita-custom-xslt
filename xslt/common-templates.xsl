@@ -38,12 +38,12 @@
   <xsl:template name="step-substep">
     <xsl:param name="type" />
     <xsl:element name="{$type}">
+      <xsl:variable name="info-element" select="*[not(contains($cmd-children, concat(' ', name(), ' ')))][1]" />
       <xsl:call-template name="universal-attributes">
         <xsl:with-param name="attributes" select="@*" />
       </xsl:call-template>
       <xsl:choose>
         <xsl:when test="text()">
-          <xsl:variable name="info-element" select="*[not(contains($cmd-children, concat(' ', name(), ' ')))][1]" />
           <xsl:choose>
             <xsl:when test="$info-element">
               <xsl:call-template name="compose-element">
@@ -63,18 +63,39 @@
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
+        <xsl:when test="$info-element">
+          <xsl:choose>
+            <xsl:when test="$info-element/preceding-sibling::*">
+              <xsl:call-template name="compose-element">
+                <xsl:with-param name="name" select="'cmd'" />
+                <xsl:with-param name="contents" select="$info-element/preceding-sibling::*|$info-element/preceding-sibling::*" />
+              </xsl:call-template>
+              <xsl:call-template name="info">
+                <xsl:with-param name="parent" select="$type" />
+                <xsl:with-param name="contents" select="$info-element|$info-element/following-sibling::*|$info-element/following-sibling::*" />
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:call-template name="compose-element">
+                <xsl:with-param name="name" select="'cmd'" />
+                <xsl:with-param name="contents" select="*[1]/text()|*[1]/*" />
+                <xsl:with-param name="attributes" select="*[1]/@*" />
+              </xsl:call-template>
+              <xsl:if test="*[2]">
+                <xsl:call-template name="info">
+                  <xsl:with-param name="parent" select="$type" />
+                  <xsl:with-param name="contents" select="*[position() > 1]" />
+                </xsl:call-template>
+              </xsl:if>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="compose-element">
             <xsl:with-param name="name" select="'cmd'" />
-            <xsl:with-param name="contents" select="*[1]/text()|*[1]/*" />
-            <xsl:with-param name="attributes" select="*[1]/@*" />
+            <xsl:with-param name="contents" select="*" />
+            <xsl:with-param name="attributes" select="@*" />
           </xsl:call-template>
-          <xsl:if test="*[2]">
-            <xsl:call-template name="info">
-              <xsl:with-param name="parent" select="$type" />
-              <xsl:with-param name="contents" select="*[position() > 1]" />
-            </xsl:call-template>
-          </xsl:if>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:element>
