@@ -552,9 +552,10 @@ class TestDitaConvertToTaskGenerated(unittest.TestCase):
 
         task = transform.to_task_generated(xml)
 
-        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[1][text()="Topic introduction"])'))
-        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[2][text()="Topic abstract"])'))
-        self.assertFalse(task.xpath('boolean(/task/shortdesc)'))
+        self.assertTrue(task.xpath('boolean(/task/shortdesc[text()="Topic abstract"])'))
+        self.assertTrue(task.xpath('boolean(/task/taskbody/context/p[text()="Topic introduction"])'))
+        self.assertFalse(task.xpath('boolean(/task/shortdesc[text()="Topic introduction"])'))
+        self.assertFalse(task.xpath('boolean(/task/taskbody/context/p[text()="Topic abstract"])'))
 
     def test_task_steps_unordered(self):
         xml = etree.parse(StringIO('''\

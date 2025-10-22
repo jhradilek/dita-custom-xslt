@@ -255,9 +255,10 @@ class TestDitaConvertToConcept(unittest.TestCase):
 
         concept = transform.to_concept_generated(xml)
 
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[1][text()="Topic introduction"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[2][text()="Topic abstract"])'))
-        self.assertFalse(concept.xpath('boolean(/concept/shortdesc)'))
+        self.assertTrue(concept.xpath('boolean(/concept/shortdesc[text()="Topic abstract"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/shortdesc[text()="Topic introduction"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/conbody/p[text()="Topic abstract"])'))
 
     def test_link_without_text(self):
         xml = etree.parse(StringIO('''\
