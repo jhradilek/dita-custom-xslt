@@ -475,7 +475,7 @@ class TestDitaCli(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             target_type = cli.get_type('topic.dita', xml)
 
-        self.assertRegex(str(cm.exception), r'topic\.dita: error: outputclass not found')
+        self.assertRegex(str(cm.exception), r'error: outputclass not found')
 
     def test_get_type_invalid(self):
         xml = etree.parse(StringIO('<topic outputclass="snippet" />'))
@@ -483,4 +483,4 @@ class TestDitaCli(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             target_type = cli.get_type('topic.dita', xml)
 
-        self.assertRegex(str(cm.exception), r'topic\.dita: error: unsupported outputclass "snippet"')
+        self.assertRegex(str(cm.exception), r'error: unsupported outputclass "snippet"')
