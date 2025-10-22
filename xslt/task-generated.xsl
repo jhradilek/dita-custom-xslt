@@ -59,7 +59,7 @@
   <xsl:template match="/topic/@outputclass" />
 
   <!-- Prevent duplication of the abstract paragraph (used for shortdesc): -->
-  <xsl:template match="//body/p[1][@outputclass='abstract']" />
+  <xsl:template match="//body/p[@outputclass='abstract'][1]" />
 
   <!-- Prevent duplication of the example section: -->
   <xsl:template match="//body/example" />
@@ -87,7 +87,7 @@
   <xsl:template match="body">
     <!-- Compose the shortdesc element: -->
     <xsl:call-template name="shortdesc">
-      <xsl:with-param name="contents" select="p[1][@outputclass='abstract']" />
+      <xsl:with-param name="contents" select="p[@outputclass='abstract'][1]" />
     </xsl:call-template>
     <xsl:element name="taskbody">
       <!-- Compose the prereq element: -->

@@ -256,9 +256,10 @@ class TestDitaConvertToReference(unittest.TestCase):
 
         reference = transform.to_reference_generated(xml)
 
-        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[1][text()="Topic introduction"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[2][text()="Topic abstract"])'))
-        self.assertFalse(reference.xpath('boolean(/reference/shortdesc)'))
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/shortdesc[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic abstract"])'))
 
     def test_link_without_text(self):
         xml = etree.parse(StringIO('''\
