@@ -86,19 +86,9 @@
     </xsl:call-template>
     <!-- Compose the refbody element: -->
     <xsl:element name="refbody">
-      <xsl:choose>
-        <xsl:when test="section">
-          <xsl:element name="section">
-            <xsl:apply-templates select="section[1]/preceding-sibling::*" />
-          </xsl:element>
-          <xsl:apply-templates select="section|section/following-sibling::*" />
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:element name="section">
-            <xsl:apply-templates select="@*|node()" />
-          </xsl:element>
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:call-template name="example-section">
+        <xsl:with-param name="contents" select="@*|node()" />
+      </xsl:call-template>
     </xsl:element>
     <!-- Compose the related-links element: -->
     <xsl:call-template name="related-links">

@@ -61,20 +61,13 @@
   <!-- Transform the body element: -->
   <xsl:template match="body">
     <xsl:element name="refbody">
-      <xsl:choose>
-        <xsl:when test="section">
-          <xsl:element name="section">
-            <xsl:apply-templates select="section[1]/preceding-sibling::*" />
-          </xsl:element>
-          <xsl:apply-templates select="section|section/following-sibling::*" />
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:element name="section">
-            <xsl:apply-templates select="@*|node()" />
-          </xsl:element>
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:call-template name="example-section">
+        <xsl:with-param name="contents" select="@*|node()" />
+      </xsl:call-template>
     </xsl:element>
   </xsl:template>
+
+  <!-- Include the common templates: -->
+  <xsl:include href="common-templates.xsl" />
 
 </xsl:stylesheet>
