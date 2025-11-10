@@ -12,7 +12,7 @@ In combination with [asciidoctor-dita-vale](https://github.com/jhradilek/asciido
 2.  Convert the AsciiDoc file to a generic DITA topic:
 
     ```console
-    asciidoctor -r dita-topic -b dita-topic -S secure source_file.adoc
+    dita-topic source_file.adoc
     ```
 3.  Convert the generic DITA topic to a specialized DITA concept, reference, or task:
 
@@ -20,10 +20,10 @@ In combination with [asciidoctor-dita-vale](https://github.com/jhradilek/asciido
     dita-convert -g source_file.dita -o output_file.dita
     ```
 
-4.  Clean up the resulting DITA file if necessary:
+4.  *Optional:* Clean up the resulting DITA file if necessary:
 
     ```console
-    dita-cleanup -iI -D ../images -X . output_file.dita
+    dita-cleanup -iD ../images -X . output_file.dita
     ```
 
 ## Installation
