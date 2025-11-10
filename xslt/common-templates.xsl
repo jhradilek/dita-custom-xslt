@@ -208,6 +208,46 @@
     </xsl:for-each>
   </xsl:template>
 
+  <!-- Compose alternating example/section elements: -->
+  <xsl:template name="example-section">
+    <xsl:param name="contents" />
+    <xsl:param name="count" select="count($contents[self::example or self::section])" />
+    <xsl:param name="first" select="$contents[following-sibling::*[self::example or self::section][$count]]" />
+    <xsl:if test="$count = 0">
+      <xsl:call-template name="compose-element">
+        <xsl:with-param name="name" select="'section'" />
+        <xsl:with-param name="contents" select="$contents" />
+      </xsl:call-template>
+    </xsl:if>
+    <xsl:if test="$first">
+      <xsl:call-template name="compose-element">
+        <xsl:with-param name="name" select="'section'" />
+        <xsl:with-param name="contents" select="$first" />
+      </xsl:call-template>
+    </xsl:if>
+    <xsl:for-each select="$contents[self::example or self::section]">
+      <xsl:variable name="current-position" select="position()" />
+      <xsl:apply-templates select="." />
+      <xsl:choose>
+        <xsl:when test="following-sibling::*[self::example or self::section]">
+          <xsl:call-template name="compose-element">
+            <xsl:with-param name="name" select="'section'" />
+            <xsl:with-param name="contents" select="following-sibling::*[following-sibling::*[self::example or self::section][$count - $current-position]]" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:variable name="last" select="following-sibling::*|following-sibling::text()" />
+          <xsl:if test="$last">
+            <xsl:call-template name="compose-element">
+              <xsl:with-param name="name" select="'section'" />
+              <xsl:with-param name="contents" select="$last" />
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
+  </xsl:template>
+
   <!-- Compose the shortdesc element: -->
   <xsl:template name="shortdesc">
     <xsl:param name="contents" />

@@ -207,7 +207,19 @@ class TestDitaConvertToReference(unittest.TestCase):
             <title>Topic title</title>
             <body>
                 <p outputclass="abstract">Topic abstract</p>
-                <p>Topic body</p>
+                <p>First paragraph</p>
+                <example>
+                    <p>First example</p>
+                </example>
+                <p>Second paragraph</p>
+                <p>Third paragraph</p>
+                <example>
+                    <p>Second example</p>
+                </example>
+                <section>
+                    <p>First section</p>
+                </section>
+                <p>Fourth paragraph</p>
             </body>
         </topic>
         '''))
@@ -224,7 +236,13 @@ class TestDitaConvertToReference(unittest.TestCase):
         self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
         self.assertTrue(reference.xpath('boolean(/reference/refbody)'))
         self.assertTrue(reference.xpath('boolean(/reference/refbody/section)'))
-        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic body"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section[1]/p[text()="First paragraph"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/example[1]/p[text()="First example"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section[2]/p[1][text()="Second paragraph"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section[2]/p[2][text()="Third paragraph"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/example[2]/p[text()="Second example"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section[3]/p[text()="First section"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section[4]/p[text()="Fourth paragraph"])'))
         self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic abstract"])'))
 
     def test_multiple_abstracts(self):
