@@ -12,7 +12,8 @@ from src.dita.convert import NAME, VERSION
 class TestDitaCli(unittest.TestCase):
     def test_invalid_option(self):
         with self.assertRaises(SystemExit) as cm,\
-             contextlib.redirect_stderr(StringIO()) as err:
+             contextlib.redirect_stderr(StringIO()) as err,\
+             patch.dict('os.environ', {'NO_COLOR': 'true'}):
             cli.run(['--invalid'])
 
         self.assertEqual(cm.exception.code, errno.ENOENT)
@@ -123,7 +124,8 @@ class TestDitaCli(unittest.TestCase):
 
     def test_opt_split_topic_invalid(self):
         with self.assertRaises(SystemExit) as cm,\
-             contextlib.redirect_stderr(StringIO()) as err:
+             contextlib.redirect_stderr(StringIO()) as err,\
+             patch.dict('os.environ', {'NO_COLOR': 'true'}):
             cli.run(['--split-topic'])
 
         self.assertEqual(cm.exception.code, errno.ENOENT)
