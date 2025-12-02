@@ -173,7 +173,8 @@ def convert_topics(args: argparse.Namespace) -> int:
             continue
 
         # Determine whether to write to standard output:
-        if args.output == sys.stdout and not args.directory and not args.in_place:
+        if (args.output == sys.stdout and not args.directory and not args.in_place) or \
+           (input_file  == sys.stdin  and args.in_place):
             # Print the converted content to standard output:
             sys.stdout.write(str(xml))
 
@@ -187,7 +188,7 @@ def convert_topics(args: argparse.Namespace) -> int:
             else:
                 output_file = str(os.path.join(args.directory, os.path.basename(input_file)))
         else:
-            if input_file != sys.stdin and args.in_place:
+            if args.in_place:
                 output_file = input_file
             else:
                 output_file = args.output
