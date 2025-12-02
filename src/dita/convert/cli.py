@@ -173,7 +173,8 @@ def convert_topics(args: argparse.Namespace) -> int:
             continue
 
         # Determine whether to write to standard output:
-        if args.output == sys.stdout and not args.directory:
+        if (args.output == sys.stdout and not args.directory and not args.in_place) or \
+           (input_file  == sys.stdin  and args.in_place):
             # Print the converted content to standard output:
             sys.stdout.write(str(xml))
 
@@ -187,7 +188,10 @@ def convert_topics(args: argparse.Namespace) -> int:
             else:
                 output_file = str(os.path.join(args.directory, os.path.basename(input_file)))
         else:
-            output_file = args.output
+            if args.in_place:
+                output_file = input_file
+            else:
+                output_file = args.output
 
         try:
             # Write the converted content to the selected file:
@@ -345,14 +349,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action='store_false',
         help='specify that the input file is a generic DITA topic ' +
              '(default); this option is mutually exclusive with -g')
+    out.add_argument('-i', '--in-place',
+        default=False,
+        action='store_true',
+        help='overwrite the original files instead of writing to stdout; ' +
+             'this option is mutually exclusive with -o and -d')
     out.add_argument('-o', '--output', metavar='FILE',
         default=sys.stdout,
         help='write output to the selected file instead of stdout; this ' +
-             'option is mutually exclusive with -d')
+             'option is mutually exclusive with -d and -i')
     out.add_argument('-d', '--directory', metavar='DIRECTORY',
         default=False,
         help='write output to the selected directory instead of stdout; ' +
-             'this option is mutually exclusive with -o')
+             'this option is mutually exclusive with -o and -i')
     info.add_argument('-h', '--help',
         action='help',
         help='display this help and exit')

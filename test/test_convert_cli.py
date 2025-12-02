@@ -155,6 +155,44 @@ class TestDitaCli(unittest.TestCase):
         self.assertEqual(out.getvalue().rstrip(), '')
         split_topics.assert_called_once_with(ANY)
 
+    def test_opt_in_place_short(self):
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse,\
+             patch('src.dita.convert.cli.open') as file_open:
+            convert.return_value = '<concept />'
+
+            with self.assertRaises(SystemExit) as cm,\
+                 contextlib.redirect_stdout(StringIO()) as out:
+                    cli.run(['-t', 'concept', '-i', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '')
+        file_open.assert_called_once_with('topic.dita', 'w')
+        file_open().__enter__().write.assert_called_once_with('<concept />')
+
+    def test_opt_in_place_long(self):
+        with patch('src.dita.convert.cli.convert') as convert,\
+             patch('src.dita.convert.cli.etree.parse') as etree_parse,\
+             patch('src.dita.convert.cli.open') as file_open:
+            convert.return_value = '<concept />'
+
+            with self.assertRaises(SystemExit) as cm,\
+                 contextlib.redirect_stdout(StringIO()) as out:
+                    cli.run(['-t', 'concept', '--in-place', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(out.getvalue().rstrip(), '')
+        file_open.assert_called_once_with('topic.dita', 'w')
+        file_open().__enter__().write.assert_called_once_with('<concept />')
+
+    def test_opt_in_place_exclusivity(self):
+        with self.assertRaises(SystemExit) as cm,\
+             contextlib.redirect_stderr(StringIO()) as err:
+            cli.run(['--output', 'out.dita', '--in-place', 'topic.dita'])
+
+        self.assertEqual(cm.exception.code, errno.ENOENT)
+        self.assertRegex(err.getvalue(), r'error:.*not allowed with argument')
+
     def test_opt_output_short(self):
         with patch('src.dita.convert.cli.convert') as convert,\
              patch('src.dita.convert.cli.etree.parse') as etree_parse,\
