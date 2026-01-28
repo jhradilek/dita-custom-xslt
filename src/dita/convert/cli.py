@@ -84,8 +84,13 @@ def fix_element_outputclass(xml_element: etree._Element) -> None:
 
 # Extract the content type from the root element outputclass:
 def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
-    # Get the root element attributes:
-    attributes = source_xml.getroot().attrib
+    # Get the root element and its attributes:
+    root_element = source_xml.getroot()
+    attributes   = source_xml.getroot().attrib
+
+    # Verify that the root element is a topic:
+    if root_element.tag != 'topic':
+        raise Exception(f'error: not a topic: "{root_element.tag}"')
 
     # Verify that the outputclass attribute is defined:
     if 'outputclass' not in attributes:
