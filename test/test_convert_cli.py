@@ -524,3 +524,11 @@ class TestDitaCli(unittest.TestCase):
             target_type = cli.get_type('topic.dita', xml)
 
         self.assertRegex(str(cm.exception), r'error: unsupported outputclass "snippet"')
+
+    def test_get_type_not_topic(self):
+        xml = etree.parse(StringIO('<concept />'))
+
+        with self.assertRaises(Exception) as cm:
+            target_type = cli.get_type('topic.dita', xml)
+
+        self.assertRegex(str(cm.exception), r'error: not a topic: "concept"')
