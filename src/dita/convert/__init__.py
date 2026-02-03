@@ -25,10 +25,10 @@
 
 # Module metadata:
 __author__      = 'Jaromir Hradilek'
-__copyright__   = 'Copyright (C) 2024, 2025 Jaromir Hradilek'
+__copyright__   = 'Copyright (C) 2024-2026 Jaromir Hradilek'
 __license__     = 'MIT License'
 __description__ = __doc__
-__version__     = '1.4.4'
+__version__     = '1.4.5'
 
 # Expose general information about the project:
 NAME        = 'dita-convert'
