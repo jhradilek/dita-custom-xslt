@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
 <!--
-  Copyright (C) 2024, 2025 Jaromir Hradilek
+  Copyright (C) 2024-2026 Jaromir Hradilek
 
   A custom XSLT stylesheet  to convert a generic DITA topic  generated with
   the asciidoctor-dita-topic[1]  plug-in to a specialized  DITA  reference.
@@ -45,10 +45,8 @@
   <xsl:strip-space elements="*" />
   <xsl:preserve-space elements="codeblock pre screen" />
 
-  <!-- Report an error if the converted file is not a DITA topic: -->
-  <xsl:template match="/*[not(self::topic)]">
-    <xsl:message terminate="yes">ERROR: Not a DITA topic</xsl:message>
-  </xsl:template>
+  <!-- Include the common templates: -->
+  <xsl:include href="common-messages.xsl" />
 
   <!-- Issue a warning if the converted file contains a nested section: -->
   <xsl:template match="//section/section">

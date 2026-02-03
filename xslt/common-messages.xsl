@@ -1,12 +1,10 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
 <!--
-  Copyright (C) 2024-2026 Jaromir Hradilek
+  Copyright (C) 2026 Jaromir Hradilek
 
-  A custom XSLT stylesheet to convert a generic DITA topic to a specialized
-  DITA concept topic.
-
-  Usage: xsltproc ––novalid concept.xsl YOUR_TOPIC.dita
+  A collection of  XSLT matches  used by other stylesheets to report common
+  errors and warnings.
 
   MIT License
 
@@ -31,36 +29,14 @@
 -->
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <!-- Compose the XML and DOCTYPE declarations: -->
-  <xsl:output encoding="utf-8" method="xml" doctype-system="concept.dtd" doctype-public="-//OASIS//DTD DITA Concept//EN" />
-
-  <!-- Format the XML output: -->
-  <xsl:output indent="yes" />
-  <xsl:strip-space elements="*" />
-  <xsl:preserve-space elements="codeblock pre screen" />
-
-  <!-- Include the common templates: -->
-  <xsl:include href="common-messages.xsl" />
-
-  <!-- Perform identity transformation: -->
-  <xsl:template match="@*|node()">
-    <xsl:copy>
-      <xsl:apply-templates select="@*|node()" />
-    </xsl:copy>
+  <!-- Report an error if the converted file is not a DITA topic: -->
+  <xsl:template match="/*[not(self::topic)]">
+    <xsl:message terminate="yes">ERROR: Not a DITA topic</xsl:message>
   </xsl:template>
 
-  <!-- Transform the root element: -->
-  <xsl:template match="/topic">
-    <xsl:element name="concept">
-      <xsl:apply-templates select="@*|node()" />
-    </xsl:element>
-  </xsl:template>
-
-  <!-- Transform the body element: -->
-  <xsl:template match="body">
-    <xsl:element name="conbody">
-      <xsl:apply-templates select="@*|node()" />
-    </xsl:element>
+  <!-- Report an error if the converted file contains an incomplete definition list: -->
+  <xsl:template match="//dt[not(following-sibling::dd)]">
+    <xsl:message terminate="yes">ERROR: Incomplete definition list</xsl:message>
   </xsl:template>
 
 </xsl:stylesheet>

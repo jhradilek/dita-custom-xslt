@@ -3,7 +3,7 @@
 <!--
   Copyright (C) 2024, 2025 Jaromir Hradilek
 
-  A collection of XSLT templates used by the remaining XSLT stylesheets.
+  A collection of XSLT templates used by other stylesheets.
 
   MIT License
 

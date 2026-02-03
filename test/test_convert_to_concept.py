@@ -16,6 +16,26 @@ class TestDitaConvertToConcept(unittest.TestCase):
 
         self.assertEqual(str(cm.exception), 'ERROR: Not a DITA topic')
 
+    def test_incomplete_dl(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <dl>
+                    <dlentry>
+                        <dt>First term</dt>
+                        <dt>Second term</dt>
+                    </dlentry>
+                </dl>
+            </body>
+        </topic>
+        '''))
+
+        with self.assertRaises(etree.XSLTApplyError) as cm:
+            transform.to_concept(xml)
+
+        self.assertEqual(str(cm.exception), 'ERROR: Incomplete definition list')
+
     def test_concept_structure(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">
