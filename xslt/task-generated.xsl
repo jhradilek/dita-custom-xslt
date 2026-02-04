@@ -56,9 +56,6 @@
   <!-- Remove the outputclass attribute from the root element: -->
   <xsl:template match="/topic/@outputclass" />
 
-  <!-- Prevent duplication of the abstract paragraph (used for shortdesc): -->
-  <xsl:template match="//body/p[@outputclass='abstract'][1]" />
-
   <!-- Prevent duplication of the example section: -->
   <xsl:template match="//body/example" />
 
@@ -96,16 +93,28 @@
       <!-- Compose the context element: -->
       <xsl:choose>
         <xsl:when test="p[@outputclass='title']">
-          <xsl:call-template name="compose-element">
-            <xsl:with-param name="name" select="'context'" />
-            <xsl:with-param name="contents" select="p[@outputclass='title'][1]/preceding-sibling::*" />
-          </xsl:call-template>
+          <xsl:variable name="contents" select="p[@outputclass='title'][1]/preceding-sibling::*[not(self::p[@outputclass='abstract'])]" />
+          <xsl:if test="p[@outputclass='title'][1]/preceding-sibling::p[@outputclass='abstract'][2]">
+            <xsl:message terminate="no">WARNING: Extra short description found, skipping...</xsl:message>
+          </xsl:if>
+          <xsl:if test="$contents">
+            <xsl:call-template name="compose-element">
+              <xsl:with-param name="name" select="'context'" />
+              <xsl:with-param name="contents" select="$contents" />
+            </xsl:call-template>
+          </xsl:if>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name="compose-element">
-            <xsl:with-param name="name" select="'context'" />
-            <xsl:with-param name="contents" select="*" />
-          </xsl:call-template>
+          <xsl:variable name="contents" select="*[not(self::p[@outputclass='abstract'])]" />
+          <xsl:if test="p[@outputclass='abstract'][2]">
+            <xsl:message terminate="no">WARNING: Extra short description found, skipping...</xsl:message>
+          </xsl:if>
+          <xsl:if test="$contents">
+            <xsl:call-template name="compose-element">
+              <xsl:with-param name="name" select="'context'" />
+              <xsl:with-param name="contents" select="$contents" />
+            </xsl:call-template>
+          </xsl:if>
         </xsl:otherwise>
       </xsl:choose>
       <!-- Compose the steps element: -->
