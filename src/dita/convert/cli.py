@@ -1,4 +1,4 @@
-# Copyright (C) 2024, 2025 Jaromir Hradilek
+# Copyright (C) 2024-2026 Jaromir Hradilek
 
 # MIT License
 #
@@ -84,6 +84,9 @@ def fix_element_outputclass(xml_element: etree._Element) -> None:
 
 # Extract the content type from the root element outputclass:
 def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
+    # Define the content type to fall back to:
+    default_type = 'concept'
+
     # Get the root element and its attributes:
     root_element = source_xml.getroot()
     attributes   = source_xml.getroot().attrib
@@ -94,7 +97,8 @@ def get_type(source_file: str, source_xml: etree._ElementTree) -> str:
 
     # Verify that the outputclass attribute is defined:
     if 'outputclass' not in attributes:
-        raise Exception(f'error: outputclass not found, use -t/--type')
+        warn(f'warning: outputclass not found, using "{default_type}"', source_file)
+        return default_type
 
     # Get the outputclass attribute value:
     output_class = str(attributes['outputclass'].lower())
