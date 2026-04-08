@@ -512,10 +512,11 @@ class TestDitaCli(unittest.TestCase):
     def test_get_type_missing(self):
         xml = etree.parse(StringIO('<topic />'))
 
-        with self.assertRaises(Exception) as cm:
+        with contextlib.redirect_stderr(StringIO()) as err:
             target_type = cli.get_type('topic.dita', xml)
 
-        self.assertRegex(str(cm.exception), r'error: outputclass not found')
+        self.assertRegex(err.getvalue(), r'warning: outputclass not found')
+        self.assertEqual(target_type, 'concept')
 
     def test_get_type_invalid(self):
         xml = etree.parse(StringIO('<topic outputclass="snippet" />'))
