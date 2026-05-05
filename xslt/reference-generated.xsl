@@ -84,8 +84,11 @@
     </xsl:call-template>
     <!-- Compose the refbody element: -->
     <xsl:element name="refbody">
+      <xsl:if test="p[@outputclass='abstract'][2]">
+        <xsl:message terminate="no">WARNING: Extra short description found, skipping...</xsl:message>
+      </xsl:if>
       <xsl:call-template name="example-section">
-        <xsl:with-param name="contents" select="@*|node()" />
+        <xsl:with-param name="contents" select="@*|node()[not(self::p[@outputclass='abstract'])]" />
       </xsl:call-template>
     </xsl:element>
     <!-- Compose the related-links element: -->

@@ -276,9 +276,13 @@ class TestDitaConvertToReference(unittest.TestCase):
         '''))
 
         reference = transform.to_reference_generated(xml)
+        err       = transform.to_reference_generated.error_log
+
+        self.assertEqual(len(err), 1)
+        self.assertEqual(err.last_error.message, 'WARNING: Extra short description found, skipping...')
 
         self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
         self.assertFalse(reference.xpath('boolean(/reference/shortdesc[text()="Topic introduction"])'))
         self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic abstract"])'))
 
@@ -298,6 +302,56 @@ class TestDitaConvertToReference(unittest.TestCase):
         self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
         self.assertFalse(reference.xpath('boolean(/reference/shortdesc[text()="Topic introduction"])'))
         self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic abstract"])'))
+
+    def test_no_content(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="abstract">Topic abstract</p>
+            </body>
+        </topic>
+        '''))
+
+        reference = transform.to_reference_generated(xml)
+
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
+        self.assertEqual(reference.xpath('count(/reference/refbody/section)'), 0)
+
+    def test_no_content_before_section(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="abstract">Topic abstract</p>
+                <section id="section-id">
+                    <p>A paragraph.</p>
+                </section>
+            </body>
+        </topic>
+        '''))
+
+        reference = transform.to_reference_generated(xml)
+
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/section[1][@id="section-id"])'))
+        self.assertEqual(reference.xpath('count(/reference/refbody/section)'), 1)
+
+    def test_no_content_before_example(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <body>
+                <p outputclass="abstract">Topic abstract</p>
+                <example id="example-id">
+                    <p>A paragraph.</p>
+                </example>
+            </body>
+        </topic>
+        '''))
+
+        reference = transform.to_reference_generated(xml)
+
+        self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
+        self.assertTrue(reference.xpath('boolean(/reference/refbody/example[@id="example-id"])'))
+        self.assertEqual(reference.xpath('count(/reference/refbody/section)'), 0)
 
     def test_link_without_text(self):
         xml = etree.parse(StringIO('''\
