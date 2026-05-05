@@ -276,9 +276,13 @@ class TestDitaConvertToReference(unittest.TestCase):
         '''))
 
         reference = transform.to_reference_generated(xml)
+        err       = transform.to_reference_generated.error_log
+
+        self.assertEqual(len(err), 1)
+        self.assertEqual(err.last_error.message, 'WARNING: Extra short description found, skipping...')
 
         self.assertTrue(reference.xpath('boolean(/reference/shortdesc[text()="Topic abstract"])'))
-        self.assertTrue(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
+        self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic introduction"])'))
         self.assertFalse(reference.xpath('boolean(/reference/shortdesc[text()="Topic introduction"])'))
         self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic abstract"])'))
 
