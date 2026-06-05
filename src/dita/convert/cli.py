@@ -266,19 +266,20 @@ def split_topics(args: argparse.Namespace) -> int:
                 if parent is not None:
                     parent.remove(e)
 
+            # Compose the target file path:
+            element_id  = str(element.attrib["id"])
+            output_file = str(os.path.join(args.directory, element_id + '.dita'))
+
             try:
                 # Convert the selected file in nested topics:
-                out = convert(input_file, topic, None, args.generated)
+                out = convert(f'{input_file} (id="{element_id}")', topic, None, args.generated)
             except etree.XSLTApplyError as message:
                 # Report the error:
-                warn(f'error: {message}', input_file)
+                warn(f'error: {message}', f'{input_file} (id="{element_id}")')
 
                 # Do not proceed further with this file:
                 exit_code = errno.EPERM
                 continue
-
-            # Compose the target file path:
-            output_file = str(os.path.join(args.directory, str(element.attrib["id"]) + '.dita'))
 
             try:
                 # Write the converted content to the selected file:
