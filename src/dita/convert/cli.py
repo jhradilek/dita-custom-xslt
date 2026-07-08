@@ -40,7 +40,7 @@ __all__ = ['convert', 'run']
 # Print a message to standard error output and terminate the script:
 def exit_with_error(error_message: str, exit_status: int = errno.EPERM) -> None:
     # Print the supplied message to standard error output:
-    print(f'{NAME}: {error_message}', file=sys.stderr)
+    print(f'{NAME}: error: {error_message}', file=sys.stderr)
 
     # Terminate the script with the supplied exit status:
     sys.exit(exit_status)
@@ -163,7 +163,7 @@ def convert_topics(args: argparse.Namespace) -> int:
         except FileExistsError:
             pass
         except Exception:
-            exit_with_error(f'error: Unable to create target directory: {args.directory}', errno.EACCES)
+            exit_with_error(f'Unable to create target directory: {args.directory}', errno.EACCES)
 
     # Process all supplied files:
     for input_file in args.files:
@@ -175,7 +175,7 @@ def convert_topics(args: argparse.Namespace) -> int:
             xml = convert(input_file, input_xml, args.type, args.generated)
         except (etree.XMLSyntaxError, etree.XSLTApplyError, OSError, Exception) as message:
             # Report the error:
-            warn(str(message), input_file)
+            warn(f'error: {message}', input_file)
 
             # Do not proceed further with this file:
             exit_code = errno.EPERM
@@ -208,7 +208,7 @@ def convert_topics(args: argparse.Namespace) -> int:
                 f.write(str(xml))
         except Exception as message:
             # Report the error:
-            warn(str(message), output_file)
+            warn(f'error: {message}', output_file)
 
             # Update the exit code:
             exit_code = errno.EPERM
@@ -227,7 +227,7 @@ def split_topics(args: argparse.Namespace) -> int:
     except FileExistsError:
         pass
     except Exception:
-        exit_with_error(f'error: Unable to create target directory: {args.directory}', errno.EACCES)
+        exit_with_error(f'Unable to create target directory: {args.directory}', errno.EACCES)
 
     # Process all supplied files:
     for input_file in args.files:
@@ -239,7 +239,7 @@ def split_topics(args: argparse.Namespace) -> int:
             xml = convert(input_file, input_xml, 'single_topic', args.generated)
         except (etree.XMLSyntaxError, etree.XSLTApplyError, OSError, Exception) as message:
             # Report the error:
-            warn(str(message), input_file)
+            warn(f'error: {message}', input_file)
 
             # Do not proceed further with this file:
             exit_code = errno.EPERM
@@ -287,7 +287,7 @@ def split_topics(args: argparse.Namespace) -> int:
                     f.write(str(out))
             except Exception as message:
                 # Report the error:
-                warn(str(message), output_file)
+                warn(f'error: {message}', output_file)
 
                 # Update the exit code:
                 exit_code = errno.EPERM
@@ -392,7 +392,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     # Verify required and unsupported option combinations:
     if args.split_topic and not args.directory:
         parser.print_usage(file=sys.stderr)
-        exit_with_error('the -s option requires -d to be specified', errno.ENOENT)
+        exit_with_error('The -s option requires -d to be specified', errno.ENOENT)
 
     # Recognize the instruction to read from standard input:
     if args.files == ['-']:
