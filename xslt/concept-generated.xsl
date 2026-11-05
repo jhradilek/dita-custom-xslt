@@ -48,11 +48,19 @@
   <!-- Include the common templates: -->
   <xsl:include href="common-messages.xsl" />
 
+  <!-- Issue a warning if the converted file contains a nested section: -->
+  <xsl:template match="//section/section">
+    <xsl:message terminate="no">WARNING: Nested sections not allowed in DITA, skipping...</xsl:message>
+  </xsl:template>
+
   <!-- Remove the outputclass attribute from the root element: -->
   <xsl:template match="/topic/@outputclass" />
 
   <!-- Prevent duplication of the abstract paragraph (used for shortdesc): -->
   <xsl:template match="//body/p[@outputclass='abstract'][1]" />
+
+  <!-- Process the related links at a later stage: -->
+  <xsl:template match="*[self::p[@outputclass='title'][b='Additional resources'] or preceding-sibling::p[@outputclass='title'][b='Additional resources']]" />
 
   <!-- Perform identity transformation: -->
   <xsl:template match="@*|node()">
@@ -68,20 +76,8 @@
     </xsl:element>
   </xsl:template>
 
-  <!-- Transform the section element: -->
-  <xsl:template match="//section">
-    <xsl:element name="section">
-      <xsl:apply-templates select="@*|*[not(self::p[@outputclass='title'][b='Additional resources'] or preceding-sibling::p[@outputclass='title'][b='Additional resources'])]" />
-    </xsl:element>
-  </xsl:template>
-
   <!-- Remove the Additional resources section (used for related-links): -->
   <xsl:template match="//section[title='Additional resources']" />
-
-  <!-- Issue a warning if the converted file contains a nested section: -->
-  <xsl:template match="//section/section">
-    <xsl:message terminate="no">WARNING: Nested sections not allowed in DITA, skipping...</xsl:message>
-  </xsl:template>
 
   <!-- Transform the body element: -->
   <xsl:template match="body">
@@ -91,7 +87,13 @@
     </xsl:call-template>
     <!-- Compose the conbody element: -->
     <xsl:element name="conbody">
-      <xsl:apply-templates select="@*|*[not(self::p[@outputclass='title'][b='Additional resources'] or preceding-sibling::p[@outputclass='title'][b='Additional resources'])]" />
+      <xsl:if test="p[@outputclass='abstract'][2]">
+        <xsl:message terminate="no">WARNING: Extra short description found, skipping...</xsl:message>
+      </xsl:if>
+      <xsl:call-template name="example-section">
+        <xsl:with-param name="first-section" select="false()" />
+        <xsl:with-param name="contents" select="@*|node()[not(self::p[@outputclass='abstract'])]" />
+      </xsl:call-template>
     </xsl:element>
     <!-- Compose the related-links element: -->
     <xsl:call-template name="related-links">

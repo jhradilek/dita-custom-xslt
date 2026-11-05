@@ -265,6 +265,26 @@ class TestDitaConvertToReference(unittest.TestCase):
         self.assertTrue(reference.xpath('boolean(/reference/refbody/section[4]/p[text()="Fourth paragraph"])'))
         self.assertFalse(reference.xpath('boolean(/reference/refbody/section/p[text()="Topic abstract"])'))
 
+    def test_no_empty_section_with_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <example>
+                    <p>First example</p>
+                </example>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul id="additional-resources">
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        reference = transform.to_reference_generated(xml)
+
+        self.assertEqual(reference.xpath('count(//section)'), 0)
+
     def test_multiple_abstracts(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">

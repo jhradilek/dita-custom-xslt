@@ -41,7 +41,19 @@ class TestDitaConvertToConcept(unittest.TestCase):
         <topic id="example-topic">
             <title>Topic title</title>
             <body>
-                <p>Topic body</p>
+                <p>First paragraph</p>
+                <example>
+                    <p>First example</p>
+                </example>
+                <p>Second paragraph</p>
+                <p>Third paragraph</p>
+                <example>
+                    <p>Second example</p>
+                </example>
+                <section>
+                    <p>First section</p>
+                </section>
+                <p>Fourth paragraph</p>
             </body>
         </topic>
         '''))
@@ -56,4 +68,10 @@ class TestDitaConvertToConcept(unittest.TestCase):
         self.assertTrue(concept.xpath('boolean(/concept[@id="example-topic"])'))
         self.assertTrue(concept.xpath('boolean(/concept/title[text()="Topic title"])'))
         self.assertTrue(concept.xpath('boolean(/concept/conbody)'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic body"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="First paragraph"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/example[1]/p[text()="First example"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[1]/p[1][text()="Second paragraph"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[1]/p[2][text()="Third paragraph"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/example[2]/p[text()="Second example"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[2]/p[text()="First section"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[3]/p[text()="Fourth paragraph"])'))

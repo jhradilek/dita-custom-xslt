@@ -227,7 +227,19 @@ class TestDitaConvertToConcept(unittest.TestCase):
             <title>Topic title</title>
             <body>
                 <p outputclass="abstract">Topic abstract</p>
-                <p>Topic body</p>
+                <p>First paragraph</p>
+                <example>
+                    <p>First example</p>
+                </example>
+                <p>Second paragraph</p>
+                <p>Third paragraph</p>
+                <example>
+                    <p>Second example</p>
+                </example>
+                <section>
+                    <p>First section</p>
+                </section>
+                <p>Fourth paragraph</p>
             </body>
         </topic>
         '''))
@@ -243,8 +255,34 @@ class TestDitaConvertToConcept(unittest.TestCase):
         self.assertTrue(concept.xpath('boolean(/concept/title[text()="Topic title"])'))
         self.assertTrue(concept.xpath('boolean(/concept/shortdesc[text()="Topic abstract"])'))
         self.assertTrue(concept.xpath('boolean(/concept/conbody)'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic body"])'))
-        self.assertFalse(concept.xpath('boolean(/concept/conbody/p[text()="Topic abstract"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="First paragraph"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/example[1]/p[text()="First example"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[1]/p[1][text()="Second paragraph"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[1]/p[2][text()="Third paragraph"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/example[2]/p[text()="Second example"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[2]/p[text()="First section"])'))
+        self.assertTrue(concept.xpath('boolean(/concept/conbody/section[3]/p[text()="Fourth paragraph"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/conbody/section/p[text()="Topic abstract"])'))
+
+    def test_no_empty_section_with_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <example>
+                    <p>First example</p>
+                </example>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul id="additional-resources">
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        concept = transform.to_concept_generated(xml)
+
+        self.assertEqual(concept.xpath('count(//section)'), 0)
 
     def test_multiple_abstracts(self):
         xml = etree.parse(StringIO('''\
@@ -257,9 +295,13 @@ class TestDitaConvertToConcept(unittest.TestCase):
         '''))
 
         concept = transform.to_concept_generated(xml)
+        err     = transform.to_concept_generated.error_log
+
+        self.assertEqual(len(err), 1)
+        self.assertEqual(err.last_error.message, 'WARNING: Extra short description found, skipping...')
 
         self.assertTrue(concept.xpath('boolean(/concept/shortdesc[text()="Topic abstract"])'))
-        self.assertTrue(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
+        self.assertFalse(concept.xpath('boolean(/concept/conbody/p[text()="Topic introduction"])'))
         self.assertFalse(concept.xpath('boolean(/concept/shortdesc[text()="Topic introduction"])'))
         self.assertFalse(concept.xpath('boolean(/concept/conbody/p[text()="Topic abstract"])'))
 

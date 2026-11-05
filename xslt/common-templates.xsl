@@ -210,20 +210,35 @@
 
   <!-- Compose alternating example/section elements: -->
   <xsl:template name="example-section">
+    <xsl:param name="first-section" select="true()" />
     <xsl:param name="contents" />
     <xsl:param name="count" select="count($contents[self::example or self::section])" />
     <xsl:param name="first" select="$contents[following-sibling::*[self::example or self::section][$count]]" />
     <xsl:if test="$count = 0">
-      <xsl:call-template name="compose-element">
-        <xsl:with-param name="name" select="'section'" />
-        <xsl:with-param name="contents" select="$contents" />
-      </xsl:call-template>
+      <xsl:choose>
+        <xsl:when test="$first-section">
+          <xsl:call-template name="compose-element">
+            <xsl:with-param name="name" select="'section'" />
+            <xsl:with-param name="contents" select="$contents" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="$contents" />
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
     <xsl:if test="$first">
-      <xsl:call-template name="compose-element">
-        <xsl:with-param name="name" select="'section'" />
-        <xsl:with-param name="contents" select="$first" />
-      </xsl:call-template>
+      <xsl:choose>
+        <xsl:when test="$first-section">
+          <xsl:call-template name="compose-element">
+            <xsl:with-param name="name" select="'section'" />
+            <xsl:with-param name="contents" select="$first" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="$first" />
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
     <xsl:for-each select="$contents[self::example or self::section]">
       <xsl:variable name="current-position" select="position()" />
@@ -236,7 +251,7 @@
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:variable name="last" select="following-sibling::*|following-sibling::text()" />
+          <xsl:variable name="last" select="following-sibling::*[not(self::p[@outputclass='title'][b='Additional resources'] or preceding-sibling::p[@outputclass='title'][b='Additional resources'])]|following-sibling::text()" />
           <xsl:if test="$last">
             <xsl:call-template name="compose-element">
               <xsl:with-param name="name" select="'section'" />

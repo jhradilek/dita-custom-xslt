@@ -59,8 +59,14 @@
   <!-- Transform the body element: -->
   <xsl:template match="body">
     <xsl:element name="conbody">
-      <xsl:apply-templates select="@*|node()" />
+      <xsl:call-template name="example-section">
+        <xsl:with-param name="first-section" select="false()" />
+        <xsl:with-param name="contents" select="@*|node()" />
+      </xsl:call-template>
     </xsl:element>
   </xsl:template>
+
+  <!-- Include the common templates: -->
+  <xsl:include href="common-templates.xsl" />
 
 </xsl:stylesheet>
