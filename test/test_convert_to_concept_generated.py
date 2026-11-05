@@ -264,6 +264,26 @@ class TestDitaConvertToConcept(unittest.TestCase):
         self.assertTrue(concept.xpath('boolean(/concept/conbody/section[3]/p[text()="Fourth paragraph"])'))
         self.assertFalse(concept.xpath('boolean(/concept/conbody/section/p[text()="Topic abstract"])'))
 
+    def test_no_empty_section_with_related_links(self):
+        xml = etree.parse(StringIO('''\
+        <topic id="example-topic">
+            <title>Topic title</title>
+            <body>
+                <example>
+                    <p>First example</p>
+                </example>
+                <p outputclass="title"><b>Additional resources</b></p>
+                <ul id="additional-resources">
+                    <li><xref href="http://example.com" format="html" scope="external" /></li>
+                </ul>
+            </body>
+        </topic>
+        '''))
+
+        concept = transform.to_concept_generated(xml)
+
+        self.assertEqual(concept.xpath('count(//section)'), 0)
+
     def test_multiple_abstracts(self):
         xml = etree.parse(StringIO('''\
         <topic id="example-topic">

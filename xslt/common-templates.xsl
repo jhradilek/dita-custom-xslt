@@ -251,7 +251,7 @@
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:variable name="last" select="following-sibling::*|following-sibling::text()" />
+          <xsl:variable name="last" select="following-sibling::*[not(self::p[@outputclass='title'][b='Additional resources'] or preceding-sibling::p[@outputclass='title'][b='Additional resources'])]|following-sibling::text()" />
           <xsl:if test="$last">
             <xsl:call-template name="compose-element">
               <xsl:with-param name="name" select="'section'" />
